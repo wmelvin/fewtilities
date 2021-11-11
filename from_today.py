@@ -3,10 +3,10 @@
 """
 from_today.py
 
-Print the date for a list of number of days from today.
+Prints future dates for a list of days from today.
 
-Initial purpose is to calculate a list of options for the date to use
-when putting items into a "keep until" folder.
+The initial purpose of this script is to calculate options for the date
+to use when labelling a "keep until" folder.
 """
 
 from datetime import date
