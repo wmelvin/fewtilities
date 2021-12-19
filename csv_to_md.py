@@ -43,10 +43,73 @@ def get_opts(argv) -> AppOptions:
 def main(argv):
     opts = get_opts(argv)
 
+    print(f"Reading '{opts.csv_path}'")
+
+    out_list = []
+    out_list.append(f"{opts.csv_path.name}")
+    out_list.append("")
+
     with open(opts.csv_path, newline="") as f:
         reader = csv.DictReader(f)
         flds = reader.fieldnames
-        print(flds)
+        # print(flds)
+        rows = [row for row in reader]
+
+    labels = []
+    widths = []
+    nums = []
+    for i in range(len(flds)):
+        if len(flds[i]) == 0:
+            label = f"(F{i})"
+        else:
+            label = flds[i]
+        labels.append(label)
+        widths.append(len(label))
+        nums.append(True)
+
+    for row in rows:
+        for i in range(len(widths)):
+            value = row[flds[i]]
+            n = len(value)
+            if widths[i] < n:
+                widths[i] = n
+            if (0 < n) and (not str(value).replace(".", "").isnumeric()):
+                nums[i] = False
+
+    #  Header
+    head = "|"
+    sepr = "|"
+    for i in range(len(labels)):
+        wid_head = widths[i] - len(labels[i])
+        head += f" {labels[i]}{' ' * wid_head} |"
+        wid_sepr = max(3,  widths[i]) - 1
+        if nums[i]:
+            sepr += f" {'-' * wid_sepr}: |"
+        else:
+            sepr += f" :{'-' * wid_sepr} |"
+    out_list.append(head)
+    out_list.append(sepr)
+
+    #  Data rows
+    for row in rows:
+        s = "|"
+        for i in range(len(flds)):
+            value = row[flds[i]]
+            w = widths[i] - len(value)
+            if nums[i]:
+                s += f" {' ' * w}{value} |"
+            else:
+                s += f" {value}{' ' * w} |"
+        out_list.append(s)
+
+    # for line in out_list:
+    #     print(line)
+
+    print(f"Writing '{opts.out_path}'")
+
+    with open(opts.out_path, "w") as g:
+        for line in out_list:
+            g.write(f"{line}\n")
 
 
 if __name__ == "__main__":
