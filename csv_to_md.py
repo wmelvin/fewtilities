@@ -94,6 +94,11 @@ def main(argv):
     for row in rows:
         s = "|"
         for i in range(len(flds)):
+
+            #  If this assertion fails, check that the headings in the CSV
+            #  file are unique.
+            assert len(flds) == len(row)
+
             value = row[flds[i]]
             w = widths[i] - len(value)
             if nums[i]:
@@ -110,6 +115,8 @@ def main(argv):
     with open(opts.out_path, "w") as g:
         for line in out_list:
             g.write(f"{line}\n")
+
+    return 0
 
 
 if __name__ == "__main__":
