@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """
 Read a CSV file and write a Markdown table.
 """
