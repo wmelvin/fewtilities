@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 
 
-app_version = "220225.2"
+app_version = "220605.1"
 
 
 def get_opts(argv):
@@ -53,7 +53,7 @@ def main(argv):
     else:
         p = Path(search_dir).expanduser().resolve()
 
-    #  Example file names:
+    #  Example pattern_1 file names:
     #  "Screenshot_from_2022-02-03_17-31-04.png"
     #  "Screenshot from 2022-02-24 14-20-29.png"
     #  "Screenshot_from_2022-02-22_07-59-01-crop.jpg"
@@ -65,16 +65,33 @@ def main(argv):
         + r"(\d{2})-(\d{2})-(\d{2}).*([.]png|[.]jpg)"
     )
 
+    #  Example pattern_2 file names:
+    #  "Screenshot_20220301_070842.png"
+
+    pattern_2 = re.compile(
+        r"Screenshot.*"
+        + r"(\d{8})."
+        + r"(\d{6}).*([.]png|[.]jpg)"
+    )
+
     moves = []
 
     for file_path in p.iterdir():
         # print(f.name)
         m1 = pattern_1.match(file_path.name)
-        if m1 is not None:
+        if m1 is None:
+            m2 = pattern_2.match(file_path.name)
+            if m2 is not None:
+                assert len(m2.groups()) == 3, "Unexpected match result."
+                new_name = "screen_{}_{}{}".format(
+                    m2[1], m2[2], m2[3]
+                )
+                new_path = file_path.parent / new_name
+                moves.append((file_path, new_path))
+
+        else:
             # print(f"m1: len={len(m1.groups())} groups={m1.groups()}")
-
             assert len(m1.groups()) == 7, "Unexpected match result."
-
             new_name = "screen_{}{}{}_{}{}{}{}".format(
                 m1[1], m1[2], m1[3], m1[4], m1[5], m1[6], m1[7]
             )

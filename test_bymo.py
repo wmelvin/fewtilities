@@ -56,6 +56,25 @@ def test_does_not_move_files_wo_arg_m(tmp_path: Path):
     assert all(not f.exists() for f in targets)
 
 
+def test_does_not_move_specified_files_wo_arg_m(tmp_path: Path):
+    d = tmp_path / "files"
+    print(f"tmp_path: {d}")
+    d.mkdir()
+    test_dt = datetime.fromisoformat("2022-02-14")
+    files = make_test_files(d, test_dt)
+    targets = [Path(d / mo_dir(f) / f.name) for f in files]
+
+    os.chdir(d)
+    assert str(Path.cwd()) == str(d)
+
+    args = ["bymo.py", "*.txt"]
+    bymo.main(args)
+
+    # Should not move files when -m argument is not passed.
+    assert all(f.exists() for f in files)
+    assert all(not f.exists() for f in targets)
+
+
 def test_moves_all_files_w_only_arg_m(tmp_path: Path):
     d = tmp_path / "files"
     d.mkdir()
