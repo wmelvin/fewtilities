@@ -64,21 +64,23 @@ The initial purpose of this script is to calculate options for the date to use w
 Renames screenshot files in the current directory to a shorter file name.
 
 ```
-#  /home/bill/Projects/Fewtilities/scren.py - version 220225.2
-usage: scren.py [-h] [-s SEARCH_DIR] [-m]
+#  /home/bill/Projects/Fewtilities/scren.py - version 220815.1
+usage: scren.py [-h] [-s SEARCH_DIR] [-m] [--what-if]
 
 Rename screenshot files. Finds files matching patterns for screenshot file
 names and moves (renames) them. By default the current directory is searched
-and a 'what-if' list of commands is printed. Search is not recursive (sub-
-directories are not searched).
+and a prompt is displayed asking whether the file should be moved. Search is
+not recursive (sub-directories are not searched).
 
 optional arguments:
   -h, --help            show this help message and exit
   -s SEARCH_DIR, --search-dir SEARCH_DIR
                         Search the given directory, instead of the current
                         directory, for screenshot files.
-  -m, --move-now        Move the files now. By default, the commands are
-                        printed but not executed.
+  -m, --move-now        Move the files now. By default, you are prompted
+                        whether to move each file. The prompt also includes
+                        the option to move all files, or to quit.
+  --what-if             Print the list of files that would be moved.
 ```
 
 ---

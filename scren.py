@@ -8,16 +8,32 @@ import sys
 from pathlib import Path
 
 
-app_version = "220605.1"
+app_version = "220815.1"
+
+
+def get_user_input(prompt, choices, default=None):
+    assert 0 < len(choices)
+    assert all([x == x.lower() for x in choices])
+    while True:
+        answer = input(prompt).lower()
+        if answer == "":
+            if default is not None:
+                answer = default
+                break
+        else:
+            if answer in choices:
+                break
+        print("Please select from the list of valid choices.")
+    return answer
 
 
 def get_opts(argv):
     ap = argparse.ArgumentParser(
         description="Rename screenshot files. Finds files matching patterns "
         + "for screenshot file names and moves (renames) them. By default "
-        + "the current directory is searched and a 'what-if' list of "
-        + "commands is printed. Search is not recursive (sub-directories "
-        + "are not searched)."
+        + "the current directory is searched and a prompt is displayed "
+        + "asking whether the file should be moved. Search is not recursive "
+        + "(sub-directories are not searched)."
     )
 
     ap.add_argument(
@@ -34,19 +50,27 @@ def get_opts(argv):
         "--move-now",
         dest="do_move",
         action="store_true",
-        help="Move the files now. By default, the commands are printed but "
-        + "not executed.",
+        help="Move the files now. By default, you are prompted whether to "
+        + "move each file. The prompt also includes the option to move all "
+        + "files, or to quit.",
+    )
+
+    ap.add_argument(
+        "--what-if",
+        dest="what_if",
+        action="store_true",
+        help="Print the list of files that would be moved.",
     )
 
     args = ap.parse_args(argv[1:])
 
-    return args.do_move, args.search_dir
+    return args.do_move, args.search_dir, args.what_if
 
 
 def main(argv):
     print(f"#  {__file__} - version {app_version}")
 
-    do_move, search_dir = get_opts(argv)
+    do_move, search_dir, what_if = get_opts(argv)
 
     if search_dir is None:
         p = Path.cwd()
@@ -98,10 +122,41 @@ def main(argv):
             new_path = file_path.parent / new_name
             moves.append((file_path, new_path))
 
+    if what_if:
+        print("\n#  Printing Unix 'mv' commands for '--what-if' output.\n")
+
     for mv in moves:
-        print(f'mv "{mv[0]}" "{mv[1]}"')
+        if what_if:
+            print(f'mv "{mv[0]}" "{mv[1]}"')
+            continue
+
+        print(f'Move "{mv[0]}"')
+        print(f'  to "{mv[1]}"')
+
         if do_move:
             shutil.move(mv[0], mv[1])
+            print("(moved)")
+        else:
+            ans = get_user_input(
+                "Move (rename) file?  Enter (y)es, (N)o, (a)ll, or (q)uit: ",
+                "y,n,a,q",
+                "n"
+            )
+
+            if ans == "n":
+                print("(Not moved)")
+                continue
+
+            if ans == "y" or ans == "a":
+                shutil.move(mv[0], mv[1])
+                print("(Moved)")
+
+            if ans == "a":
+                do_move = True
+
+            if ans == "q":
+                print("(Quit)")
+                break
 
     return 0
 
