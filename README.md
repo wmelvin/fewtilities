@@ -69,17 +69,19 @@ usage: scren.py [-h] [-s SEARCH_DIR] [-m] [--what-if]
 
 Rename screenshot files. Finds files matching patterns for screenshot file
 names and moves (renames) them. By default the current directory is searched
-and a prompt is displayed asking whether the file should be moved. Search is
-not recursive (sub-directories are not searched).
+and a prompt is displayed asking whether the file should be moved. The default
+answer is Yes (Y) if Enter is pressed without any other input. The prompt also
+includes the option to move all files (A), or to quit (Q). Search is not
+recursive (sub-directories are not searched).
 
 optional arguments:
   -h, --help            show this help message and exit
   -s SEARCH_DIR, --search-dir SEARCH_DIR
                         Search the given directory, instead of the current
-                        directory, for screenshot files.
-  -m, --move-now        Move the files now. By default, you are prompted
-                        whether to move each file. The prompt also includes
-                        the option to move all files, or to quit.
+                        directory, for screenshot files. Search is not
+                        recursive (sub-directories are not searched).
+  -m, --move-now        Move the files now instead of prompting whether to
+                        move each file.
   --what-if             Print the list of files that would be moved.
 ```
 

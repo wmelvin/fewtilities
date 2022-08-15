@@ -11,11 +11,15 @@ from pathlib import Path
 app_version = "220815.1"
 
 
+def get_input_lower(prompt):
+    return input(prompt).lower()
+
+
 def get_user_input(prompt, choices, default=None):
     assert 0 < len(choices)
     assert all([x == x.lower() for x in choices])
     while True:
-        answer = input(prompt).lower()
+        answer = get_input_lower(prompt)
         if answer == "":
             if default is not None:
                 answer = default
@@ -32,8 +36,10 @@ def get_opts(argv):
         description="Rename screenshot files. Finds files matching patterns "
         + "for screenshot file names and moves (renames) them. By default "
         + "the current directory is searched and a prompt is displayed "
-        + "asking whether the file should be moved. Search is not recursive "
-        + "(sub-directories are not searched)."
+        + "asking whether the file should be moved. The default answer is "
+        + "Yes (Y) if Enter is pressed without any other input. The prompt "
+        + "also includes the option to move all files (A), or to quit (Q). "
+        + "Search is not recursive (sub-directories are not searched)."
     )
 
     ap.add_argument(
@@ -42,7 +48,8 @@ def get_opts(argv):
         dest="search_dir",
         action="store",
         help="Search the given directory, instead of the current directory, "
-        + "for screenshot files.",
+        + "for screenshot files. Search is not recursive (sub-directories "
+        + "are not searched).",
     )
 
     ap.add_argument(
@@ -50,9 +57,8 @@ def get_opts(argv):
         "--move-now",
         dest="do_move",
         action="store_true",
-        help="Move the files now. By default, you are prompted whether to "
-        + "move each file. The prompt also includes the option to move all "
-        + "files, or to quit.",
+        help="Move the files now instead of prompting whether to "
+        + "move each file.",
     )
 
     ap.add_argument(
@@ -138,9 +144,9 @@ def main(argv):
             print("(moved)")
         else:
             ans = get_user_input(
-                "Move (rename) file?  Enter (y)es, (N)o, (a)ll, or (q)uit: ",
+                "Move (rename) file?  Enter (Y)es, (n)o, (a)ll, or (q)uit: ",
                 "y,n,a,q",
-                "n"
+                "y"
             )
 
             if ans == "n":

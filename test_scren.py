@@ -52,10 +52,10 @@ def test_scren(make_test_files):
 
 
 def test_scren_user_input_n(make_test_files, monkeypatch):
-    def fake_user_input_n(prompt, choices, default):
+    def fake_input_n(prompt):
         return "n"
 
-    monkeypatch.setattr(scren, "get_user_input", fake_user_input_n)
+    monkeypatch.setattr(scren, "get_input_lower", fake_input_n)
 
     d, files = make_test_files
     os.chdir(d)
@@ -69,10 +69,10 @@ def test_scren_user_input_n(make_test_files, monkeypatch):
 
 
 def test_scren_user_input_y(make_test_files, monkeypatch):
-    def fake_user_input_y(prompt, choices, default):
+    def fake_input_y(prompt):
         return "y"
 
-    monkeypatch.setattr(scren, "get_user_input", fake_user_input_y)
+    monkeypatch.setattr(scren, "get_input_lower", fake_input_y)
 
     d, files = make_test_files
     os.chdir(d)
@@ -82,6 +82,25 @@ def test_scren_user_input_y(make_test_files, monkeypatch):
     scren.main(args)
 
     # Should move (rename) files when user input is "y".
+    assert all(not f.exists() for f in files)
+
+    assert len(list(d.glob("screen_*"))) == len(files)
+
+
+def test_scren_user_input_enter(make_test_files, monkeypatch):
+    def fake_input_enter(prompt):
+        return ""
+
+    monkeypatch.setattr(scren, "get_input_lower", fake_input_enter)
+
+    d, files = make_test_files
+    os.chdir(d)
+    assert str(Path.cwd()) == str(d)
+
+    args = ["scren.py"]
+    scren.main(args)
+
+    # Should move (rename) files when user input default is "y".
     assert all(not f.exists() for f in files)
 
     assert len(list(d.glob("screen_*"))) == len(files)
