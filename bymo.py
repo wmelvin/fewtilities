@@ -8,7 +8,27 @@ from datetime import datetime
 from pathlib import Path
 
 
-app_version = "220302.1"
+app_version = "220815.1"
+
+
+def get_input_lower(prompt):
+    return input(prompt).lower()
+
+
+def get_user_input(prompt, choices, default=None):
+    assert 0 < len(choices)
+    assert all([x == x.lower() for x in choices])
+    while True:
+        answer = get_input_lower(prompt)
+        if answer == "":
+            if default is not None:
+                answer = default
+                break
+        else:
+            if answer in choices:
+                break
+        print("Please select from the list of valid choices.")
+    return answer
 
 
 def get_opts(argv):
@@ -44,15 +64,22 @@ def get_opts(argv):
         + "replaced with underscores.",
     )
 
+    ap.add_argument(
+        "--what-if",
+        dest="what_if",
+        action="store_true",
+        help="Print the list of files that would be moved.",
+    )
+
     args = ap.parse_args(argv[1:])
 
-    return args.do_move, args.keep_spaces, args.filespecs
+    return args.do_move, args.keep_spaces, args.filespecs, args.what_if
 
 
 def main(argv):
     print(f"#  {__file__} - version {app_version}")
 
-    do_move, keep_spaces, filespecs = get_opts(argv)
+    do_move, keep_spaces, filespecs, what_if = get_opts(argv)
 
     p = Path.cwd()
 
@@ -77,21 +104,53 @@ def main(argv):
         else:
             dst_name = f.name.replace(" ", "_")
 
-        moves.append((f.name, Path(dst_dir) / dst_name))
+        moves.append((f.name, Path(dst_dir) / dst_name, dst_dir))
 
     dirs.sort()
 
-    for d in dirs:
-        print(f"mkdir {d}")
-        if do_move:
-            dp = Path(d)
-            if not dp.exists():
-                dp.mkdir()
+    if what_if:
+        print("\n#  Printing Unix 'mv' commands for '--what-if' output.\n")
+        for d in dirs:
+            print(f'mkdir "{d}"')
 
     for mv in moves:
-        print(f'mv "{mv[0]}" "{mv[1]}"')
+        if what_if:
+            print(f'mv "{mv[0]}" "{mv[1]}"')
+            continue
+
+        print(f'Move "{mv[0]}"')
+        print(f'  to "{mv[1]}"')
+
+        dst_path = Path(mv[2])
+
         if do_move:
+            if not dst_path.exists():
+                dst_path.mkdir()
             shutil.move(mv[0], mv[1])
+            print("(moved)")
+        else:
+            ans = get_user_input(
+                "Move (rename) file?  Enter (Y)es, (n)o, (a)ll, or (q)uit: ",
+                "y,n,a,q",
+                "y"
+            )
+
+            if ans == "n":
+                print("(Not moved)")
+                continue
+
+            if ans == "y" or ans == "a":
+                if not dst_path.exists():
+                    dst_path.mkdir()
+                shutil.move(mv[0], mv[1])
+                print("(Moved)")
+
+            if ans == "a":
+                do_move = True
+
+            if ans == "q":
+                print("(Quit)")
+                break
 
     return 0
 

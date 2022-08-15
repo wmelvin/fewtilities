@@ -37,7 +37,32 @@ def mo_dir(file_path: Path):
     return s
 
 
-def test_does_not_move_files_wo_arg_m(tmp_path: Path):
+def test_no_move_w_arg_whatif(tmp_path: Path):
+    d = tmp_path / "files"
+    print(f"tmp_path: {d}")
+    d.mkdir()
+    test_dt = datetime.fromisoformat("2022-02-14")
+    files = make_test_files(d, test_dt)
+    targets = [Path(d / mo_dir(f) / f.name) for f in files]
+
+    os.chdir(d)
+    assert str(Path.cwd()) == str(d)
+
+    args = ["bymo.py", "--what-if", "-m"]
+    bymo.main(args)
+
+    #  Should not move files when --what-if argument is passed
+    #  even if -m argument is passed.
+    assert all(f.exists() for f in files)
+    assert all(not f.exists() for f in targets)
+
+
+def test_no_move_wo_arg_m(tmp_path: Path, monkeypatch):
+    def fake_input_n(prompt):
+        return "n"
+
+    monkeypatch.setattr(bymo, "get_input_lower", fake_input_n)
+
     d = tmp_path / "files"
     print(f"tmp_path: {d}")
     d.mkdir()
@@ -56,7 +81,13 @@ def test_does_not_move_files_wo_arg_m(tmp_path: Path):
     assert all(not f.exists() for f in targets)
 
 
-def test_does_not_move_specified_files_wo_arg_m(tmp_path: Path):
+def test_no_move_specified_files_wo_arg_m(tmp_path: Path, monkeypatch):
+
+    def fake_input_n(prompt):
+        return "n"
+
+    monkeypatch.setattr(bymo, "get_input_lower", fake_input_n)
+
     d = tmp_path / "files"
     print(f"tmp_path: {d}")
     d.mkdir()
@@ -75,7 +106,14 @@ def test_does_not_move_specified_files_wo_arg_m(tmp_path: Path):
     assert all(not f.exists() for f in targets)
 
 
-def test_moves_all_files_w_only_arg_m(tmp_path: Path):
+def test_move_all_files_w_only_arg_m(tmp_path: Path, monkeypatch):
+
+    def fake_input_n(prompt):
+        assert 0, "This should no be called."
+        return "n"
+
+    monkeypatch.setattr(bymo, "get_input_lower", fake_input_n)
+
     d = tmp_path / "files"
     d.mkdir()
     test_dt = datetime.fromisoformat("2022-02-14")
@@ -98,7 +136,7 @@ def test_moves_all_files_w_only_arg_m(tmp_path: Path):
     assert all(f.exists() for f in targets)
 
 
-def test_moves_only_specified_files(tmp_path: Path):
+def test_move_only_specified_files_w_arg_m(tmp_path: Path):
     d = tmp_path / "files"
     print(f"tmp_path: {d}")
     d.mkdir()
@@ -113,6 +151,37 @@ def test_moves_only_specified_files(tmp_path: Path):
     bymo.main(args)
 
     # Should move only specified files when -m argument is also passed.
+    assert all(f.exists() for f in files if f.suffix == ".ini")
+    assert all(not f.exists() for f in files if f.suffix == ".txt")
+
+    assert (d / "2021_12").exists()
+    assert not (d / "2022_01").exists()
+    assert (d / "2022_02").exists()
+
+    assert all(f.exists() for f in targets if f.suffix == ".txt")
+
+
+def test_move_only_specified_files_w_input_y(tmp_path: Path, monkeypatch):
+
+    def fake_input_y(prompt):
+        return "y"
+
+    monkeypatch.setattr(bymo, "get_input_lower", fake_input_y)
+
+    d = tmp_path / "files"
+    print(f"tmp_path: {d}")
+    d.mkdir()
+    test_dt = datetime.fromisoformat("2022-02-14")
+    files = make_test_files(d, test_dt)
+    targets = [Path(d / mo_dir(f) / f.name) for f in files]
+
+    os.chdir(d)
+    assert str(Path.cwd()) == str(d)
+
+    args = ["bymo.py", "*.txt"]
+    bymo.main(args)
+
+    # Should move only specified files when user chooses (y)es.
     assert all(f.exists() for f in files if f.suffix == ".ini")
     assert all(not f.exists() for f in files if f.suffix == ".txt")
 

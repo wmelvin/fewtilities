@@ -11,8 +11,8 @@ This is a repository for tools that do not need a whole project structure to the
 Moves files in the current directory into sub-directories named for the year and month (as *YYYY_MM*) of each file's last modified time.
 
 ```
-#  /home/bill/Projects/Fewtilities/bymo.py - version 220302.1
-usage: bymo.py [-h] [-m] [-k] [filespecs [filespecs ...]]
+#  /home/bill/Projects/Fewtilities/bymo.py - version 220815.1
+usage: bymo.py [-h] [-m] [-k] [--what-if] [filespecs [filespecs ...]]
 
 Move files in the current directory (folder) to sub-directories named for the
 year and month the file was last modified.
@@ -27,6 +27,7 @@ optional arguments:
                      but not executed.
   -k, --keep-spaces  Keep spaces in destination file names. By default, spaces
                      are replaced with underscores.
+  --what-if          Print the list of files that would be moved.
 ```
 
 ---
