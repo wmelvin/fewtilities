@@ -31,7 +31,7 @@ def get_opts(argv) -> AppOptions:
     args = ap.parse_args(argv[1:])
 
     csv_path = Path(args.csv_file)
-    assert csv_path.exists()
+    assert csv_path.exists(), "Specified CSV file does not exist."
 
     dt = datetime.now().strftime("%Y%m%d_%H%M%S")
 
@@ -42,16 +42,14 @@ def get_opts(argv) -> AppOptions:
     return opts
 
 
-def main(argv):
-    opts = get_opts(argv)
-
-    print(f"Reading '{opts.csv_path}'")
+def csv_to_md(csv_filename: str, md_filename: str) -> int:
+    print(f"Reading '{csv_filename}'")
 
     out_list = []
-    out_list.append(f"{opts.csv_path.name}")
+    out_list.append(f"{Path(csv_filename).name}")
     out_list.append("")
 
-    with open(opts.csv_path, newline="") as f:
+    with open(csv_filename, newline="") as f:
         reader = csv.DictReader(f)
         flds = reader.fieldnames
         # print(flds)
@@ -99,7 +97,7 @@ def main(argv):
 
             #  If this assertion fails, check that the headings in the CSV
             #  file are unique.
-            assert len(flds) == len(row)
+            assert len(flds) == len(row), "CSV column titles must be unique."
 
             value = row[flds[i]]
             w = widths[i] - len(value)
@@ -112,13 +110,18 @@ def main(argv):
     # for line in out_list:
     #     print(line)
 
-    print(f"Writing '{opts.out_path}'")
+    print(f"Writing '{md_filename}'")
 
-    with open(opts.out_path, "w") as g:
+    with open(md_filename, "w") as g:
         for line in out_list:
             g.write(f"{line}\n")
 
     return 0
+
+
+def main(argv):
+    opts = get_opts(argv)
+    return csv_to_md(str(opts.csv_path), str(opts.out_path))
 
 
 if __name__ == "__main__":
