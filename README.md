@@ -37,15 +37,17 @@ optional arguments:
 Reads a CSV file and writes the data as a Markdown table.
 
 ```
-usage: csv_to_md.py [-h] csv_file
+usage: csv_to_md.py [-h] [--no-info] [--no-source] csv_file
 
 Read a CSV file and write a Markdown table.
 
 positional arguments:
-  csv_file    Path to CSV file.
+  csv_file     Path to CSV file.
 
 optional arguments:
-  -h, --help  show this help message and exit
+  -h, --help   show this help message and exit
+  --no-info    Do not include the 'Created by...' information header.
+  --no-source  Do not include the 'Source:...' header.
 ```
 
 This requires that the CSV file is formatted as a table, with a single heading row, with unique column titles, followed by data rows.

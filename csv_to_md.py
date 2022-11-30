@@ -13,7 +13,12 @@ from datetime import datetime
 from pathlib import Path
 
 
-AppOptions = namedtuple("AppOptions", "csv_path, out_path")
+app_name = Path(__file__).name
+
+run_dt = datetime.now()
+
+
+AppOptions = namedtuple("AppOptions", "csv_path, out_path, do_info, do_source")
 
 
 def get_opts(argv) -> AppOptions:
@@ -28,26 +33,47 @@ def get_opts(argv) -> AppOptions:
         help="Path to CSV file.",
     )
 
+    ap.add_argument(
+        "--no-info",
+        dest="no_info",
+        action="store_true",
+        help="Do not include the 'Created by...' information header.",
+    )
+
+    ap.add_argument(
+        "--no-source",
+        dest="no_source",
+        action="store_true",
+        help="Do not include the 'Source:...' header.",
+    )
+
     args = ap.parse_args(argv[1:])
 
     csv_path = Path(args.csv_file)
     assert csv_path.exists(), "Specified CSV file does not exist."
 
-    dt = datetime.now().strftime("%Y%m%d_%H%M%S")
+    dt = run_dt.strftime("%Y%m%d_%H%M%S")
 
     out_path = csv_path.with_suffix("").with_suffix(f".{dt}.md")
 
-    opts = AppOptions(csv_path, out_path)
+    opts = AppOptions(csv_path, out_path, not args.no_info, not args.no_source)
 
     return opts
 
 
-def csv_to_md(csv_filename: str, md_filename: str) -> int:
+def csv_to_md(
+    csv_filename: str, md_filename: str, do_info: bool, do_source: bool
+) -> int:
     print(f"Reading '{csv_filename}'")
 
     out_list = []
-    out_list.append(f"{Path(csv_filename).name}")
-    out_list.append("")
+    dt = run_dt.strftime("%Y-%m-%d %H:%M")
+
+    if do_info:
+        out_list.append(f"Created by '{app_name}' at {dt}\n")
+
+    if do_source:
+        out_list.append(f"Source: {Path(csv_filename).name}\n")
 
     with open(csv_filename, newline="") as f:
         reader = csv.DictReader(f)
@@ -82,7 +108,7 @@ def csv_to_md(csv_filename: str, md_filename: str) -> int:
     for i in range(len(labels)):
         wid_head = widths[i] - len(labels[i])
         head += f" {labels[i]}{' ' * wid_head} |"
-        wid_sepr = max(3,  widths[i]) - 1
+        wid_sepr = max(3, widths[i]) - 1
         if nums[i]:
             sepr += f" {'-' * wid_sepr}: |"
         else:
@@ -121,7 +147,9 @@ def csv_to_md(csv_filename: str, md_filename: str) -> int:
 
 def main(argv):
     opts = get_opts(argv)
-    return csv_to_md(str(opts.csv_path), str(opts.out_path))
+    return csv_to_md(
+        str(opts.csv_path), str(opts.out_path), opts.do_info, opts.do_source
+    )
 
 
 if __name__ == "__main__":
