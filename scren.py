@@ -8,7 +8,9 @@ import sys
 from pathlib import Path
 
 
-app_version = "220815.1"
+app_version = "230116.1"
+
+app_title = f"scren.py (v.{app_version})"
 
 
 def get_input_lower(prompt):
@@ -74,7 +76,7 @@ def get_opts(argv):
 
 
 def main(argv):
-    print(f"#  {__file__} - version {app_version}")
+    print(f"#  {app_title}")
 
     do_move, search_dir, what_if = get_opts(argv)
 

@@ -11,7 +11,6 @@ This is a repository for tools that do not need a whole project structure to the
 Moves files in the current directory into sub-directories named for the year and month (as *YYYY_MM*) of each file's last modified time.
 
 ```
-#  /home/bill/Projects/Fewtilities/bymo.py - version 220815.1
 usage: bymo.py [-h] [-m] [-k] [--what-if] [filespecs [filespecs ...]]
 
 Move files in the current directory (folder) to sub-directories named for the
@@ -28,6 +27,42 @@ optional arguments:
   -k, --keep-spaces  Keep spaces in destination file names. By default, spaces
                      are replaced with underscores.
   --what-if          Print the list of files that would be moved.
+```
+
+---
+
+### copydif.py
+
+Copy differing files from a source directory (or wildcard pattern) to a target directory. This a basically a one-way file synchronization that does not mirror the source (extra files in the target location are not deleted).
+
+This script was created to update local copies, on multiple machines, by pulling from a source location on a file server - a simple local deployment of tools and utilities.
+
+For more options, use [rsync](https://en.wikipedia.org/wiki/Rsync) or [Robocopy](https://en.wikipedia.org/wiki/Robocopy) (Windows) instead of this script. ;-)
+
+```
+usage: copydif.py [-h] [--log-file LOG_FILE] source_spec target_dir
+
+Copy only files that have different sizes or modification times or are not
+present in the target directory. This will overwrite a newer file in the
+target directory with an older file from the source directory (rollback).
+
+positional arguments:
+  source_spec          Source directory or file specification. This can be the
+                       path for a single file. It can also include a wilcard
+                       character to match multiple files ('source/path/*.txt'
+                       for example). If a directory name is given then all
+                       files in the directory are included, but sub-
+                       directories are not. This script does not do recursive
+                       processing of sub-directories. The source can also be a
+                       list file (a text file with the path to a source file
+                       on each line) if the file name is prefixed with an '@'
+                       symbol.
+  target_dir           Directory to update with any changed files.
+
+optional arguments:
+  -h, --help           show this help message and exit
+  --log-file LOG_FILE  Name of the log file to create (or append, if exists).
+                       By default, there is no log file.
 ```
 
 ---
@@ -67,7 +102,6 @@ The initial purpose of this script is to calculate options for the date to use w
 Renames screenshot files in the current directory to a shorter file name.
 
 ```
-#  /home/bill/Projects/Fewtilities/scren.py - version 220815.1
 usage: scren.py [-h] [-s SEARCH_DIR] [-m] [--what-if]
 
 Rename screenshot files. Finds files matching patterns for screenshot file
