@@ -31,6 +31,35 @@ optional arguments:
 
 ---
 
+### comment_links.py
+
+Extract **links** (strings that start with "https://" or "http://") from **comments** (strings that start with "#") in a script file (such as Python or PowerShell) and create a HTML file containing those links (with a few lines of surrounding context). This is to make it easier to review, collect, and summarize such links.
+
+Currently, this is limited to scripts that use "#" for comments.
+
+```
+usage: comment_links.py [-h] [-o OUT_DIR] [-n OUT_NAME] [--no-dt] source_file
+
+Extract links from comments in a script.
+
+positional arguments:
+  source_file           Script file to read.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -o OUT_DIR, --output-dir OUT_DIR
+                        Directory in which to create the output file.
+                        Optional. By default, output is written to the current
+                        directory.
+  -n OUT_NAME, --out-name OUT_NAME
+                        Output file name. Optional. Default is
+                        comment_links.html.
+  --no-dt               Do not add the date_time tag, which is added by
+                        default, to the output file name. Optional.
+```
+
+---
+
 ### copydif.py
 
 Copy differing files from a source directory (or wildcard pattern) to a target directory. This a basically a one-way file synchronization that does not mirror the source (extra files in the target location are not deleted).
@@ -42,7 +71,7 @@ For more options, use [rsync](https://en.wikipedia.org/wiki/Rsync) or [Robocopy]
 ```
 usage: copydif.py [-h] [--log-file LOG_FILE] source_spec target_dir
 
-Copy only files that have different sizes or modification times or are not
+Copy only files that have different sizes or modification times, or are not
 present in the target directory. This will overwrite a newer file in the
 target directory with an older file from the source directory (rollback).
 
