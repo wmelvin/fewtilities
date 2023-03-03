@@ -14,6 +14,8 @@ from pathlib import Path
 
 
 app_name = Path(__file__).name
+app_version = "230303.1"
+app_title = f"{app_name} (v.{app_version})"
 
 run_dt = datetime.now()
 
@@ -47,14 +49,40 @@ def get_opts(argv) -> AppOptions:
         help="Do not include the 'Source:...' header.",
     )
 
+    ap.add_argument(
+        "-n",
+        "--name",
+        dest="md_file",
+        action="store",
+        help="Name of the output file to create. Optional. "
+        "By default the output file is named using the name of the input "
+        "(CSV) file with a date_time tag and a '.md' suffix. An existing "
+        "file with the same name will not be overwritten unless the "
+        "--force option is used.",
+    )
+
+    ap.add_argument(
+        "--force",
+        dest="do_overwrite",
+        action="store_true",
+        help="Allow an existing output file to be overwritten.",
+    )
+
     args = ap.parse_args(argv[1:])
 
     csv_path = Path(args.csv_file)
-    assert csv_path.exists(), "Specified CSV file does not exist."
+    if not csv_path.exists():
+        raise SystemExit(f"File not found: {csv_path}")
 
     dt = run_dt.strftime("%Y%m%d_%H%M%S")
 
-    out_path = csv_path.with_suffix("").with_suffix(f".{dt}.md")
+    if args.md_file:
+        out_path = Path(args.md_file)
+    else:
+        out_path = csv_path.with_suffix("").with_suffix(f".{dt}.md")
+
+    if out_path.exists() and not args.do_overwrite:
+        raise SystemExit(f"Output file already exists: {out_path}")
 
     opts = AppOptions(csv_path, out_path, not args.no_info, not args.no_source)
 
@@ -70,7 +98,7 @@ def csv_to_md(
     dt = run_dt.strftime("%Y-%m-%d %H:%M")
 
     if do_info:
-        out_list.append(f"Created by '{app_name}' at {dt}\n")
+        out_list.append(f"Created by '{app_title}' at {dt}\n")
 
     if do_source:
         out_list.append(f"Source: {Path(csv_filename).name}\n")
@@ -146,6 +174,7 @@ def csv_to_md(
 
 
 def main(argv):
+    print(f"\n{app_title}\n")
     opts = get_opts(argv)
     return csv_to_md(
         str(opts.csv_path), str(opts.out_path), opts.do_info, opts.do_source

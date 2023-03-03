@@ -109,7 +109,7 @@ def test_no_move_specified_files_wo_arg_m(tmp_path: Path, monkeypatch):
 def test_move_all_files_w_only_arg_m(tmp_path: Path, monkeypatch):
 
     def fake_input_n(prompt):
-        assert 0, "This should no be called."
+        assert 0, "This should not be called."
         return "n"
 
     monkeypatch.setattr(bymo, "get_input_lower", fake_input_n)
