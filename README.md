@@ -2,7 +2,19 @@
 
 ## A few utilities
 
-This is a repository for tools that do not need a whole project structure to themselves.
+This is a repository for some command-line tools that do not need a whole project structure for each one individually. These are **Python** scripts that use only **standard library modules**. Any additional requirements are only for development and testing.
+
+[bymo.py](#bymopy) - Move files into sub-directories named for the year and month.
+
+[comment\_links.py](#comment_linkspy) - Extract links from comments in a script and into a new HTML file.
+
+[copydif.py](#copydifpy) - Copy files that differ from a source directory to a target directory (one-way sync).
+
+[csv\_to\_md.py](#csv_to_mdpy) - Read a CSV file and write the data as a Markdown table.
+
+[from\_today.py](#from_todaypy) - Print a set of future dates, *n* days from today.
+
+[scren.py](#screnpy) - Rename captured screenshot files to a more compact name.
 
 ---
 
