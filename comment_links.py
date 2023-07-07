@@ -12,14 +12,14 @@ from textwrap import dedent
 DEFAULT_FILENAME = "comment_links.html"
 
 
-app_version = "230121.1"
+app_version = "230707.1"
 
 app_title = f"comment_links.py (v.{app_version})"
 
 run_dt = datetime.now()
 
 
-AppOptions = namedtuple("AppOptions", "source_file, out_file")
+AppOptions = namedtuple("AppOptions", "source_files, out_file")
 
 
 def html_style():
@@ -83,7 +83,7 @@ def html_tail():
     return dedent(
         """
         <div id="footer">
-          Created {0} by {1}.
+          Created {0} by {1}
         </div>
         </body>
         </html>
@@ -93,11 +93,14 @@ def html_tail():
 
 def get_args(argv):
     ap = argparse.ArgumentParser(
-        description="Extract links from comments in a script."
+        description="Extract links from comments in a script. This tool only "
+        "works with scripts, such as Python or PowerShell, that use the '#' "
+        "symbol for comments."
     )
 
     ap.add_argument(
-        "source_file",
+        "source_files",
+        nargs='+',
         action="store",
         help="Script file to read.",
     )
@@ -137,17 +140,20 @@ def get_args(argv):
 def get_opts(argv):
     args = get_args(argv)
 
-    source_file = Path(args.source_file).expanduser().resolve()
-
-    # TODO: Handle errors.
-    assert source_file.exists()
-    assert source_file.is_file()
+    source_files = []
+    for fn in args.source_files:
+        source_file = Path(fn).expanduser().resolve()
+        if source_file.exists() and source_file.is_file():
+            source_files.append(source_file)
+        else:
+            sys.stderr.write(f"\nERROR: Cannot find file '{source_file}'.\n")
+            sys.exit(1)
 
     out_dir = Path(args.out_dir).expanduser().resolve()
 
-    # TODO: Handle errors.
-    assert out_dir.exists()
-    assert out_dir.is_dir()
+    if not (out_dir.exists() and out_dir.is_dir()):
+        sys.stderr.write(f"\nERROR: Cannot find directory '{out_dir}'.\n")
+        sys.exit(1)
 
     if args.no_dt:
         dt = ""
@@ -159,7 +165,7 @@ def get_opts(argv):
 
     out_file = out_dir.joinpath(fn)
 
-    return AppOptions(source_file, out_file)
+    return AppOptions(source_files, out_file)
 
 
 def link_html(url, context_before, context_after):
@@ -183,42 +189,54 @@ def link_html(url, context_before, context_after):
     return result
 
 
+def get_comment_links(source_file: Path) -> str:
+    print(f"Reading '{source_file}'")
+
+    with open(source_file) as f:
+        lines = f.readlines()
+
+    result = ""
+
+    for i, line in enumerate(lines):
+        s = line.strip()
+        if s.startswith("#") and ("https://" in s or "http://" in s):
+            #  Remove leading comment chars and spaces, and trailing
+            #  whitespace.
+            url = s.lstrip("# ").rstrip()
+
+            #  Split on space char and take the first element to remove any
+            #  text after the URL.
+            usplit = url.split(" ")
+            url = usplit[0]
+
+            # Get context lines before and after the current line.
+            ctx1 = lines[i-2:i]
+            ctx2 = lines[i+1:i+3]
+
+            result += link_html(url, ctx1, ctx2)
+
+    if result:
+        result = f"<p>From: <strong>{source_file.name}</strong></p>\n{result}"
+    else:
+        print(f"  No links in '{source_file.name}'")
+
+    return result
+
+
 def main(argv):
     print(f"\n{app_title}\n")
 
     opts = get_opts(argv)
-    assert isinstance(opts.source_file, Path)
-    assert isinstance(opts.out_file, Path)
 
-    print(f"Reading {opts.source_file}")
+    body = ""
+    for source_file in opts.source_files:
+        body += get_comment_links(source_file)
 
-    with open(opts.source_file) as f:
-        lines = f.readlines()
-
-    print(f"Writing {opts.out_file}")
+    print(f"Writing '{opts.out_file}'")
 
     with open(opts.out_file, "w") as html:
         html.write(f'{html_head("comment_links")}\n')
-
-        html.write(f'<p>From: <strong>{opts.source_file}</strong></p>\n')
-
-        for i, line in enumerate(lines):
-            s = line.strip()
-            if s.startswith("#") and ("https://" in s or "http://" in s):
-                #  Remove comment char and any space after it.
-                url = s[1:].strip()
-
-                #  Split on space char and take the first element to remove any
-                #  text after the URL.
-                usplit = url.split(" ")
-                url = usplit[0]
-
-                # Get context lines before and after the current line.
-                ctx1 = lines[i-2:i]
-                ctx2 = lines[i+1:i+3]
-
-                html.write(link_html(url, ctx1, ctx2))
-
+        html.write(body)
         html.write(f"{html_tail()}\n")
 
     print("Done.")

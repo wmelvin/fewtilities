@@ -50,12 +50,14 @@ Extract **links** (strings that start with "https://" or "http://") from **comme
 Currently, this is limited to scripts that use "#" for comments.
 
 ```
-usage: comment_links.py [-h] [-o OUT_DIR] [-n OUT_NAME] [--no-dt] source_file
+usage: comment_links.py [-h] [-o OUT_DIR] [-n OUT_NAME] [--no-dt]
+                        source_files [source_files ...]
 
-Extract links from comments in a script.
+Extract links from comments in a script. This tool only works with scripts,
+such as Python or PowerShell, that use the '#' symbol for comments.
 
 positional arguments:
-  source_file           Script file to read.
+  source_files          Script file to read.
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -113,17 +115,25 @@ optional arguments:
 Reads a CSV file and writes the data as a Markdown table.
 
 ```
-usage: csv_to_md.py [-h] [--no-info] [--no-source] csv_file
+usage: csv_to_md.py [-h] [--no-info] [--no-source] [-n MD_FILE] [--force]
+                    csv_file
 
 Read a CSV file and write a Markdown table.
 
 positional arguments:
-  csv_file     Path to CSV file.
+  csv_file              Path to CSV file.
 
 optional arguments:
-  -h, --help   show this help message and exit
-  --no-info    Do not include the 'Created by...' information header.
-  --no-source  Do not include the 'Source:...' header.
+  -h, --help            show this help message and exit
+  --no-info             Do not include the 'Created by...' information header.
+  --no-source           Do not include the 'Source:...' header.
+  -n MD_FILE, --name MD_FILE
+                        Name of the output file to create. Optional. By
+                        default the output file is named using the name of the
+                        input (CSV) file with a date_time tag and a '.md'
+                        suffix. An existing file with the same name will not
+                        be overwritten unless the --force option is used.
+  --force               Allow an existing output file to be overwritten.
 ```
 
 This requires that the CSV file is formatted as a table, with a single heading row, with unique column titles, followed by data rows.
