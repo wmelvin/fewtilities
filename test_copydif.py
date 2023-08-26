@@ -272,3 +272,18 @@ def test_copies_files_per_list_file(source_3files_and_target):
 
     assert result == 0
     assert len(list(target_path.glob("*"))) == 2
+
+
+def test_source_only_has_dir(source_3files_and_target, capsys):
+    source_path, target_path = source_3files_and_target
+
+    #  Parent of source_path only has the original source_path dir.
+    source_path = source_path.parent
+
+    args = ["copydif.py", str(source_path), str(target_path)]
+    result = copydif.main(args)
+
+    captured = capsys.readouterr()
+
+    assert result == 0
+    assert "No files found matching" in captured.out

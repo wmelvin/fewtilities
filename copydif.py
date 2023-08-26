@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 
 import argparse
-import glob
-import os
 import shutil
 import sys
 import time
@@ -12,7 +10,7 @@ from pathlib import Path
 from typing import List
 
 
-app_version = "230117.1"
+app_version = "230826.1"
 
 app_title = f"copydif.py (v.{app_version})"
 
@@ -47,20 +45,20 @@ def file_time_str(secs):
     return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(secs))
 
 
-def same_time_and_size(filename1, filename2):
+def same_time_and_size(file1: Path, file2: Path):
     """
     Compares the file size and modified time. Returns False if either
-    does not match. Also returns False if filename2 does not exist.
+    does not match. Also returns False if file2 does not exist.
 
     Since the file modification times may have different numeric precision
     on different operating systems, strings representing the times are
     compared instead of comparing the floating point (st_mtime) values.
     """
-    info1 = os.stat(filename1)
-    if not os.path.exists(filename2):
+    if not file2.exists():
         return False
 
-    info2 = os.stat(filename2)
+    info1 = file1.stat()
+    info2 = file2.stat()
     if info1.st_size != info2.st_size:
         return False
 
@@ -73,42 +71,39 @@ def copy_differing_files(source_spec, target_dir):
     say(f"Source: {source_spec}")
     say(f"Target: {target_dir}")
 
-    source_files = glob.glob(source_spec)
+    source_path = Path(source_spec)
+
+    if source_path.is_dir():
+        source_files = [p for p in source_path.iterdir() if p.is_file()]
+    else:
+        source_files = [
+            p
+            for p in source_path.parent.glob(source_path.name)
+            if p.is_file()
+        ]
+
     if not source_files:
         say(f"No files found matching '{source_spec}'")
         return
 
-    if len(source_files) == 1 and os.path.isdir(source_files[0]):
-        source_files = glob.glob(os.path.join(source_spec, "*"))
-        if not source_files:
-            say(f"No files found in directory '{source_spec}'")
-            return
-
     source_files.sort()
 
-    for source_filename in source_files:
-        target_filename = os.path.join(
-            target_dir, os.path.split(source_filename)[1]
-        )
-        if same_time_and_size(source_filename, target_filename):
-            say(f"  Same: {os.path.split(source_filename)[1]}")
+    for source_file in source_files:
+        target_file = Path(target_dir) / source_file.name
+
+        if same_time_and_size(source_file, target_file):
+            say(f"  Same: {source_file.name}")
         else:
-            say(f"  COPY: {os.path.split(source_filename)[1]}")
+            say(f"  COPY: {source_file.name}")
             #  shutil.copy2 preserves the file modification time.
-            shutil.copy2(source_filename, target_filename)
-
-
-#  TODO: This script is based on an older version from the Python 2 days.
-#  Is there a good reason to replace the existing os.path calls (which
-#  still work) with pathlib Path methods? Not sure "because it's the new
-#  thing" is a good reason. Deprecation of os.path would be a good reason.
+            shutil.copy2(source_file, target_file)
 
 
 def get_source_list(source_spec: str) -> List[str]:
     assert source_spec.startswith("@")
     file_name = source_spec.strip("@")
     say(f"Reading list-file: {file_name}")
-    if not os.path.exists(file_name):
+    if not Path(file_name).exists():
         complain(f"Cannot find source list file: '{file_name}'")
         raise SystemExit
     result = []
