@@ -1,14 +1,11 @@
+import os
 from datetime import datetime, timedelta
 from pathlib import Path
-
-import os
 
 import bymo
 
 
-def make_test_file(
-    dir_path: Path, file_name: str, time_stamp: datetime.timestamp
-):
+def make_test_file(dir_path: Path, file_name: str, time_stamp: datetime.timestamp):
     f = dir_path / file_name
     f.write_text(f.name)
     assert f.exists()
@@ -33,8 +30,7 @@ def make_test_files(dir_path: Path, base_dt: datetime):
 
 def mo_dir(file_path: Path):
     """Returns the directory name for the month of the given file's mtime."""
-    s = datetime.fromtimestamp(file_path.stat().st_mtime).strftime("%Y_%m")
-    return s
+    return datetime.fromtimestamp(file_path.stat().st_mtime).strftime("%Y_%m")
 
 
 def test_no_move_w_arg_whatif(tmp_path: Path):
@@ -82,7 +78,6 @@ def test_no_move_wo_arg_m(tmp_path: Path, monkeypatch):
 
 
 def test_no_move_specified_files_wo_arg_m(tmp_path: Path, monkeypatch):
-
     def fake_input_n(prompt):
         return "n"
 
@@ -107,7 +102,6 @@ def test_no_move_specified_files_wo_arg_m(tmp_path: Path, monkeypatch):
 
 
 def test_move_all_files_w_only_arg_m(tmp_path: Path, monkeypatch):
-
     def fake_input_n(prompt):
         assert 0, "This should not be called."
         return "n"
@@ -162,7 +156,6 @@ def test_move_only_specified_files_w_arg_m(tmp_path: Path):
 
 
 def test_move_only_specified_files_w_input_y(tmp_path: Path, monkeypatch):
-
     def fake_input_y(prompt):
         return "y"
 

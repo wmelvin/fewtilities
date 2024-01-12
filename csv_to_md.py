@@ -7,24 +7,27 @@ Read a CSV file and write a Markdown table.
 import argparse
 import csv
 import sys
-
-from collections import namedtuple
 from datetime import datetime
 from pathlib import Path
-
+from typing import NamedTuple
 
 app_name = Path(__file__).name
-app_version = "230303.1"
-app_title = f"{app_name} (v.{app_version})"
+
+app_version = "2024.01.1"
+
+app_title = f"{app_name} (v{app_version})"
 
 run_dt = datetime.now()
 
 
-AppOptions = namedtuple("AppOptions", "csv_path, out_path, do_info, do_source")
+class AppOptions(NamedTuple):
+    csv_path: Path
+    out_path: Path
+    do_info: bool
+    do_source: bool
 
 
 def get_opts(argv) -> AppOptions:
-
     ap = argparse.ArgumentParser(
         description="Read a CSV file and write a Markdown table."
     )
@@ -84,12 +87,10 @@ def get_opts(argv) -> AppOptions:
     if out_path.exists() and not args.do_overwrite:
         raise SystemExit(f"Output file already exists: {out_path}")
 
-    opts = AppOptions(csv_path, out_path, not args.no_info, not args.no_source)
-
-    return opts
+    return AppOptions(csv_path, out_path, not args.no_info, not args.no_source)
 
 
-def csv_to_md(
+def csv_to_md(  # noqa: PLR0912
     csv_filename: str, md_filename: str, do_info: bool, do_source: bool
 ) -> int:
     print(f"Reading '{csv_filename}'")
@@ -103,20 +104,16 @@ def csv_to_md(
     if do_source:
         out_list.append(f"Source: {Path(csv_filename).name}\n")
 
-    with open(csv_filename, newline="") as f:
+    with Path(csv_filename).open(newline="") as f:
         reader = csv.DictReader(f)
         flds = reader.fieldnames
-        # print(flds)
-        rows = [row for row in reader]
+        rows = list(reader)
 
     labels = []
     widths = []
     nums = []
     for i in range(len(flds)):
-        if len(flds[i]) == 0:
-            label = f"(F{i})"
-        else:
-            label = flds[i]
+        label = f"(F{i})" if len(flds[i]) == 0 else flds[i]
         labels.append(label)
         widths.append(len(label))
         nums.append(True)
@@ -127,7 +124,7 @@ def csv_to_md(
             n = len(value)
             if widths[i] < n:
                 widths[i] = n
-            if (0 < n) and (not str(value).replace(".", "").isnumeric()):
+            if (n > 0) and (not str(value).replace(".", "").isnumeric()):
                 nums[i] = False
 
     #  Header
@@ -145,13 +142,16 @@ def csv_to_md(
     out_list.append(sepr)
 
     #  Data rows
-    for row in rows:
+    for row_num, row in enumerate(rows, start=1):
         s = "|"
         for i in range(len(flds)):
-
-            #  If this assertion fails, check that the headings in the CSV
-            #  file are unique.
-            assert len(flds) == len(row), "CSV column titles must be unique."
+            if len(flds) != len(row):
+                sys.stderr.write(
+                    f"\nNumber of columns in row {row_num} does not match the"
+                    "number of heading titles. Make sure there are no"
+                    "duplicate or missing column titles.\n"
+                )
+                sys.exit(1)
 
             value = row[flds[i]]
             w = widths[i] - len(value)
@@ -161,12 +161,9 @@ def csv_to_md(
                 s += f" {value}{' ' * w} |"
         out_list.append(s)
 
-    # for line in out_list:
-    #     print(line)
-
     print(f"Writing '{md_filename}'")
 
-    with open(md_filename, "w") as g:
+    with Path(md_filename).open("w") as g:
         for line in out_list:
             g.write(f"{line}\n")
 

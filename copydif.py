@@ -1,18 +1,17 @@
 #!/usr/bin/env python3
 
+from __future__ import annotations
+
 import argparse
 import shutil
 import sys
 import time
-
 from datetime import datetime
 from pathlib import Path
-from typing import List
 
+app_version = "2024.01.1"
 
-app_version = "230826.1"
-
-app_title = f"copydif.py (v.{app_version})"
+app_title = f"copydif.py (v{app_version})"
 
 log_file = None
 
@@ -20,7 +19,7 @@ log_file = None
 def write_log(text: str):
     if log_file:
         dt = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        with open(log_file, "a") as f:
+        with Path(log_file).open("a") as f:
             f.write(f"[{dt}] {text.strip()}\n")
 
 
@@ -77,9 +76,7 @@ def copy_differing_files(source_spec, target_dir):
         source_files = [p for p in source_path.iterdir() if p.is_file()]
     else:
         source_files = [
-            p
-            for p in source_path.parent.glob(source_path.name)
-            if p.is_file()
+            p for p in source_path.parent.glob(source_path.name) if p.is_file()
         ]
 
     if not source_files:
@@ -99,15 +96,15 @@ def copy_differing_files(source_spec, target_dir):
             shutil.copy2(source_file, target_file)
 
 
-def get_source_list(source_spec: str) -> List[str]:
-    assert source_spec.startswith("@")
+def get_source_list(source_spec: str) -> list[str]:
+    assert source_spec.startswith("@")  # noqa: S101
     file_name = source_spec.strip("@")
     say(f"Reading list-file: {file_name}")
     if not Path(file_name).exists():
         complain(f"Cannot find source list file: '{file_name}'")
         raise SystemExit
     result = []
-    with open(file_name) as f:
+    with Path(file_name).open() as f:
         lines = f.readlines()
     for line in lines:
         s = line.strip()
@@ -173,7 +170,7 @@ def get_args(argv):
         log_path = None
 
     if log_path:
-        global log_file
+        global log_file  # noqa: PLW0603
         log_file = str(log_path)
 
     source_spec = args.source_spec

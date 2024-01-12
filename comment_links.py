@@ -1,25 +1,26 @@
 #!/usr/bin/env python3
 
+from __future__ import annotations
+
 import argparse
 import sys
-
-from collections import namedtuple
 from datetime import datetime
 from pathlib import Path
 from textwrap import dedent
-
+from typing import NamedTuple
 
 DEFAULT_FILENAME = "comment_links.html"
 
-
-app_version = "230707.1"
+app_version = "2024.01.1"
 
 app_title = f"comment_links.py (v.{app_version})"
 
 run_dt = datetime.now()
 
 
-AppOptions = namedtuple("AppOptions", "source_files, out_file")
+class AppOptions(NamedTuple):
+    source_files: list[Path]
+    out_file: Path
 
 
 def html_style():
@@ -100,7 +101,7 @@ def get_args(argv):
 
     ap.add_argument(
         "source_files",
-        nargs='+',
+        nargs="+",
         action="store",
         help="Script file to read.",
     )
@@ -155,10 +156,7 @@ def get_opts(argv):
         sys.stderr.write(f"\nERROR: Cannot find directory '{out_dir}'.\n")
         sys.exit(1)
 
-    if args.no_dt:
-        dt = ""
-    else:
-        dt = f"-{run_dt.strftime('%y%m%d_%H%M%S')}"
+    dt = "" if args.no_dt else f"-{run_dt.strftime('%y%m%d_%H%M%S')}"
 
     p = Path(args.out_name)
     fn = f"{p.stem}{dt}.html"
@@ -169,8 +167,8 @@ def get_opts(argv):
 
 
 def link_html(url, context_before, context_after):
-    assert isinstance(context_before, list)
-    assert isinstance(context_after, list)
+    assert isinstance(context_before, list)  # noqa: S101
+    assert isinstance(context_after, list)  # noqa: S101
 
     result = '<div class="item">\n'
     for item in context_before:
@@ -192,7 +190,7 @@ def link_html(url, context_before, context_after):
 def get_comment_links(source_file: Path) -> str:
     print(f"Reading '{source_file}'")
 
-    with open(source_file) as f:
+    with source_file.open() as f:
         lines = f.readlines()
 
     result = ""
@@ -210,8 +208,8 @@ def get_comment_links(source_file: Path) -> str:
             url = usplit[0]
 
             # Get context lines before and after the current line.
-            ctx1 = lines[i-2:i]
-            ctx2 = lines[i+1:i+3]
+            ctx1 = lines[i - 2 : i]
+            ctx2 = lines[i + 1 : i + 3]
 
             result += link_html(url, ctx1, ctx2)
 
@@ -234,7 +232,7 @@ def main(argv):
 
     print(f"Writing '{opts.out_file}'")
 
-    with open(opts.out_file, "w") as html:
+    with opts.out_file.open("w") as html:
         html.write(f'{html_head("comment_links")}\n')
         html.write(body)
         html.write(f"{html_tail()}\n")

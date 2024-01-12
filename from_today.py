@@ -9,8 +9,7 @@ The initial purpose of this script is to calculate options for the date
 to use when labelling a "keep until" folder.
 """
 
-from datetime import date
-from datetime import timedelta
+from datetime import date, timedelta
 
 
 def print_date(days):

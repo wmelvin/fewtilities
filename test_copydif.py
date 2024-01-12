@@ -1,22 +1,20 @@
-import os
-import pytest
-import shutil
+from __future__ import annotations
 
+import os
+import shutil
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Tuple
 
-import copydif
+import pytest
 
+import copydif
 
 base_dt = datetime(2023, 1, 16, 13, 33, 0)
 
 
 def set_mtime_per_base(file_name: str, minutes: int):
-    if minutes:
-        file_dt = base_dt + timedelta(minutes=minutes)
-    else:
-        file_dt = base_dt
+    file_dt = base_dt + timedelta(minutes=minutes) if minutes else base_dt
     new_ts = file_dt.timestamp()
     os.utime(file_name, (new_ts, new_ts))
 
@@ -49,7 +47,7 @@ def test_help(capsys):
     captured = capsys.readouterr()
 
     assert "[-h]" in captured.out
-    assert "copydif.py (v." in captured.out
+    assert "copydif.py (v20" in captured.out
 
 
 def test_copies_to_empty_target(source_3files_and_target):

@@ -1,7 +1,8 @@
-from pathlib import Path
-from typing import List
+from __future__ import annotations
 
 import os
+from pathlib import Path
+
 import pytest
 
 import scren
@@ -12,7 +13,7 @@ def make_test_files(tmp_path: Path):
     dir_path = tmp_path / "Pictures"
     dir_path.mkdir()
 
-    file_list: List[Path] = []
+    file_list: list[Path] = []
 
     #  Pattern 1:
     file_list.append(dir_path / "Screenshot_from_2022-02-03_17-31-01.png")

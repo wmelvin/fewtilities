@@ -1,7 +1,7 @@
-import pytest
-
 from pathlib import Path
 from textwrap import dedent
+
+import pytest
 
 import comment_links
 
@@ -117,7 +117,7 @@ def test_process_two_files(tmp_path):
         str(fake_script_2),
         "-o",
         str(tmp_path),
-        "--no-dt"
+        "--no-dt",
     ]
     result = comment_links.main(args)
     assert result == 0
