@@ -7,7 +7,7 @@ import comment_links
 
 
 def test_help(capsys):
-    args = ["comment_links.py", "-h"]
+    args = ["-h"]
 
     with pytest.raises(SystemExit):
         comment_links.main(args)
@@ -15,13 +15,13 @@ def test_help(capsys):
     captured = capsys.readouterr()
 
     assert "[-h]" in captured.out
-    assert "comment_links.py (v." in captured.out
+    assert "comment_links.py (v2" in captured.out
 
 
 def test_file_not_found(capsys, tmp_path):
     file_name = str(tmp_path / "NotHere")
 
-    args = ["comment_links.py", file_name]
+    args = [file_name]
 
     with pytest.raises(SystemExit):
         comment_links.main(args)
@@ -36,7 +36,7 @@ def test_outdir_not_found(capsys, tmp_path):
     file_path.write_text("hi")
     dir_name = str(tmp_path / "NotHere")
 
-    args = ["comment_links.py", str(file_path), "-o", dir_name]
+    args = [str(file_path), "-o", dir_name]
 
     with pytest.raises(SystemExit):
         comment_links.main(args)
@@ -51,7 +51,6 @@ def test_opts(tmp_path):
     srctxt.write_text("blah")
     outdir = str(tmp_path)
     args = [
-        "comment_links.py",
         str(srctxt),
         "--output-dir",
         outdir,
@@ -81,7 +80,7 @@ def test_process_file(tmp_path):
     )
     fake_script.write_text(text)
 
-    args = ["comment_links.py", str(fake_script), "-o", str(tmp_path)]
+    args = [str(fake_script), "-o", str(tmp_path)]
     result = comment_links.main(args)
     assert result == 0
 
@@ -112,7 +111,6 @@ def test_process_two_files(tmp_path):
     fake_script_2.write_text(text)
 
     args = [
-        "comment_links.py",
         str(fake_script_1),
         str(fake_script_2),
         "-o",

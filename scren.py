@@ -3,10 +3,9 @@
 import argparse
 import re
 import shutil
-import sys
 from pathlib import Path
 
-app_version = "2024.01.1"
+app_version = "2024.02.1"
 
 app_title = f"scren.py (v{app_version})"
 
@@ -30,7 +29,7 @@ def get_user_input(prompt, choices, default=None):
     return answer
 
 
-def get_opts(argv):
+def get_opts(arglist=None):
     ap = argparse.ArgumentParser(
         description="Rename screenshot files. Finds files matching patterns "
         "for screenshot file names and moves (renames) them. By default "
@@ -66,15 +65,15 @@ def get_opts(argv):
         help="Print the list of files that would be moved.",
     )
 
-    args = ap.parse_args(argv[1:])
+    args = ap.parse_args(arglist)
 
     return args.do_move, args.search_dir, args.what_if
 
 
-def main(argv):  # noqa: PLR0912
+def main(arglist=None):  # noqa: PLR0912
     print(f"#  {app_title}")
 
-    do_move, search_dir, what_if = get_opts(argv)
+    do_move, search_dir, what_if = get_opts(arglist)
 
     p = Path.cwd() if search_dir is None else Path(search_dir).expanduser().resolve()
 
@@ -157,4 +156,4 @@ def main(argv):  # noqa: PLR0912
 
 
 if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+    main()

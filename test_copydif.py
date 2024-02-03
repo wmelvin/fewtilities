@@ -39,7 +39,7 @@ def source_3files_and_target(tmp_path) -> Tuple[Path, Path]:
 
 
 def test_help(capsys):
-    args = ["copydif.py", "-h"]
+    args = ["-h"]
 
     with pytest.raises(SystemExit):
         copydif.main(args)
@@ -55,7 +55,7 @@ def test_copies_to_empty_target(source_3files_and_target):
 
     assert len(list(target_path.glob("*"))) == 0
 
-    args = ["copydif.py", str(source_path), str(target_path)]
+    args = [str(source_path), str(target_path)]
     result = copydif.main(args)
 
     assert result == 0
@@ -69,7 +69,7 @@ def test_copies_file_per_wildcard(source_3files_and_target):
 
     src_spec = str(source_path.joinpath("*.txt"))
 
-    args = ["copydif.py", src_spec, str(target_path)]
+    args = [src_spec, str(target_path)]
     result = copydif.main(args)
 
     assert result == 0
@@ -83,7 +83,7 @@ def test_copies_files_per_wildcard(source_3files_and_target):
 
     src_spec = str(source_path.joinpath("*"))
 
-    args = ["copydif.py", src_spec, str(target_path)]
+    args = [src_spec, str(target_path)]
     result = copydif.main(args)
 
     assert result == 0
@@ -98,7 +98,7 @@ def test_detects_files_same(source_3files_and_target, capsys):
 
     assert len(list(target_path.glob("*"))) == 3
 
-    args = ["copydif.py", str(source_path), str(target_path)]
+    args = [str(source_path), str(target_path)]
     result = copydif.main(args)
 
     captured = capsys.readouterr()
@@ -124,7 +124,7 @@ def test_detects_file_mtime(source_3files_and_target, capsys):
 
     assert len(list(target_path.glob("*"))) == 3
 
-    args = ["copydif.py", str(source_path), str(target_path)]
+    args = [str(source_path), str(target_path)]
     result = copydif.main(args)
 
     captured = capsys.readouterr()
@@ -150,7 +150,7 @@ def test_detects_file_size(source_3files_and_target, capsys):
 
     assert len(list(target_path.glob("*"))) == 3
 
-    args = ["copydif.py", str(source_path), str(target_path)]
+    args = [str(source_path), str(target_path)]
     result = copydif.main(args)
 
     captured = capsys.readouterr()
@@ -164,7 +164,7 @@ def test_missing_source(source_3files_and_target, capsys):
     source_path, target_path = source_3files_and_target
     source_path = source_path.joinpath("ImNotHere")  # No mkdir.
 
-    args = ["copydif.py", str(source_path), str(target_path)]
+    args = [str(source_path), str(target_path)]
     result = copydif.main(args)
 
     captured = capsys.readouterr()
@@ -182,7 +182,6 @@ def test_log_file(source_3files_and_target):
     assert len(list(target_path.glob("*"))) == 0
 
     args = [
-        "copydif.py",
         str(source_path),
         str(target_path),
         f"--log-file={log_path}",
@@ -201,7 +200,6 @@ def test_bad_log_file(source_3files_and_target, capsys):
     print(log_path)
 
     args = [
-        "copydif.py",
         str(source_path),
         str(target_path),
         f"--log-file={log_path}",
@@ -219,7 +217,6 @@ def test_bad_target_path(source_3files_and_target, capsys):
     bad_target = target_path.joinpath("ImNotHere")  # No mkdir.
 
     args = [
-        "copydif.py",
         str(source_path),
         str(bad_target),
     ]
@@ -232,7 +229,7 @@ def test_bad_target_path(source_3files_and_target, capsys):
 
 
 def test_no_args(capsys):
-    args = ["copydif.py"]  # Well there is arg[0].
+    args = []
     with pytest.raises(SystemExit):
         copydif.main(args)
     captured = capsys.readouterr()
@@ -242,7 +239,6 @@ def test_no_args(capsys):
 def test_no_target_path(tmp_path, capsys):
     source_path = tmp_path
     args = [
-        "copydif.py",
         str(source_path),
     ]
     with pytest.raises(SystemExit):
@@ -265,7 +261,7 @@ def test_copies_files_per_list_file(source_3files_and_target):
 
     assert len(list(target_path.glob("*"))) == 0
 
-    args = ["copydif.py", f"@{list_file}", str(target_path)]
+    args = [f"@{list_file}", str(target_path)]
     result = copydif.main(args)
 
     assert result == 0
@@ -278,7 +274,7 @@ def test_source_only_has_dir(source_3files_and_target, capsys):
     #  Parent of source_path only has the original source_path dir.
     source_path = source_path.parent
 
-    args = ["copydif.py", str(source_path), str(target_path)]
+    args = [str(source_path), str(target_path)]
     result = copydif.main(args)
 
     captured = capsys.readouterr()

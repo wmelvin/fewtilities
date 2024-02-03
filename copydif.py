@@ -9,7 +9,7 @@ import time
 from datetime import datetime
 from pathlib import Path
 
-app_version = "2024.01.1"
+app_version = "2024.02.1"
 
 app_title = f"copydif.py (v{app_version})"
 
@@ -114,7 +114,7 @@ def get_source_list(source_spec: str) -> list[str]:
     return result
 
 
-def get_args(argv):
+def get_args(arglist=None):
     ap = argparse.ArgumentParser(
         description=(
             "Copy only files that have different sizes or modification "
@@ -154,7 +154,7 @@ def get_args(argv):
         "default, there is no log file.",
     )
 
-    args = ap.parse_args(argv[1:])
+    args = ap.parse_args(arglist)
 
     if args.log_file:
         log_path = Path(args.log_file)
@@ -192,10 +192,10 @@ def get_args(argv):
     return (source_spec, target_dir, source_list)
 
 
-def main(argv):
+def main(arglist=None):
     print(f"\n{app_title}\n")
 
-    source_spec, target_dir, source_list = get_args(argv)
+    source_spec, target_dir, source_list = get_args(arglist)
 
     write_log(app_title)
 
@@ -209,4 +209,4 @@ def main(argv):
 
 
 if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+    main()

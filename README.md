@@ -23,7 +23,7 @@ This is a repository for some command-line tools that do not need a whole projec
 Moves files in the current directory into sub-directories named for the year and month (as *YYYY_MM*) of each file's last modified time.
 
 ```
-usage: bymo.py [-h] [-m] [-k] [--what-if] [filespecs [filespecs ...]]
+usage: bymo.py [-h] [-m] [-k] [--what-if] [filespecs ...]
 
 Move files in the current directory (folder) to sub-directories named for the
 year and month the file was last modified.
@@ -32,7 +32,7 @@ positional arguments:
   filespecs          Optional file specification for matching files to move
                      (ie. '*.jpg').
 
-optional arguments:
+options:
   -h, --help         show this help message and exit
   -m, --move-now     Move the files now. By default, the commands are printed
                      but not executed.
@@ -59,7 +59,7 @@ such as Python or PowerShell, that use the '#' symbol for comments.
 positional arguments:
   source_files          Script file to read.
 
-optional arguments:
+options:
   -h, --help            show this help message and exit
   -o OUT_DIR, --output-dir OUT_DIR
                         Directory in which to create the output file.
@@ -102,7 +102,7 @@ positional arguments:
                        symbol.
   target_dir           Directory to update with any changed files.
 
-optional arguments:
+options:
   -h, --help           show this help message and exit
   --log-file LOG_FILE  Name of the log file to create (or append, if exists).
                        By default, there is no log file.
@@ -123,7 +123,7 @@ Read a CSV file and write a Markdown table.
 positional arguments:
   csv_file              Path to CSV file.
 
-optional arguments:
+options:
   -h, --help            show this help message and exit
   --no-info             Do not include the 'Created by...' information header.
   --no-source           Do not include the 'Source:...' header.
@@ -162,7 +162,7 @@ answer is Yes (Y) if Enter is pressed without any other input. The prompt also
 includes the option to move all files (A), or to quit (Q). Search is not
 recursive (sub-directories are not searched).
 
-optional arguments:
+options:
   -h, --help            show this help message and exit
   -s SEARCH_DIR, --search-dir SEARCH_DIR
                         Search the given directory, instead of the current

@@ -44,7 +44,7 @@ def test_no_move_w_arg_whatif(tmp_path: Path):
     os.chdir(d)
     assert str(Path.cwd()) == str(d)
 
-    args = ["bymo.py", "--what-if", "-m"]
+    args = ["--what-if", "-m"]
     bymo.main(args)
 
     #  Should not move files when --what-if argument is passed
@@ -69,7 +69,7 @@ def test_no_move_wo_arg_m(tmp_path: Path, monkeypatch):
     os.chdir(d)
     assert str(Path.cwd()) == str(d)
 
-    args = ["bymo.py"]
+    args = []
     bymo.main(args)
 
     # Should not move files when -m argument is not passed.
@@ -93,7 +93,7 @@ def test_no_move_specified_files_wo_arg_m(tmp_path: Path, monkeypatch):
     os.chdir(d)
     assert str(Path.cwd()) == str(d)
 
-    args = ["bymo.py", "*.txt"]
+    args = ["*.txt"]
     bymo.main(args)
 
     # Should not move files when -m argument is not passed.
@@ -117,7 +117,7 @@ def test_move_all_files_w_only_arg_m(tmp_path: Path, monkeypatch):
     os.chdir(d)
     assert str(Path.cwd()) == str(d)
 
-    args = ["bymo.py", "-m"]
+    args = ["-m"]
     bymo.main(args)
 
     # Should move all files when only -m argument is passed.
@@ -141,7 +141,7 @@ def test_move_only_specified_files_w_arg_m(tmp_path: Path):
     os.chdir(d)
     assert str(Path.cwd()) == str(d)
 
-    args = ["bymo.py", "-m", "*.txt"]
+    args = ["-m", "*.txt"]
     bymo.main(args)
 
     # Should move only specified files when -m argument is also passed.
@@ -171,7 +171,7 @@ def test_move_only_specified_files_w_input_y(tmp_path: Path, monkeypatch):
     os.chdir(d)
     assert str(Path.cwd()) == str(d)
 
-    args = ["bymo.py", "*.txt"]
+    args = ["*.txt"]
     bymo.main(args)
 
     # Should move only specified files when user chooses (y)es.
@@ -196,7 +196,7 @@ def test_takes_multiple_file_specs(tmp_path: Path):
     os.chdir(d)
     assert str(Path.cwd()) == str(d)
 
-    args = ["bymo.py", "-m", "*.txt", "*.opt"]
+    args = ["-m", "*.txt", "*.opt"]
     bymo.main(args)
 
     # Should move only specified files when -m argument is also passed.

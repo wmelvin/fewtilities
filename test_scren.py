@@ -37,13 +37,13 @@ def test_scren(make_test_files):
     os.chdir(d)
     assert str(Path.cwd()) == str(d)
 
-    args = ["scren.py", "--what-if"]
+    args = ["--what-if"]
     scren.main(args)
 
     # Should not move files when the --what-if argument is passed.
     assert all(f.exists() for f in files)
 
-    args = ["scren.py", "-m"]
+    args = ["-m"]
     scren.main(args)
 
     # Should move (rename) files when -m argument is passed.
@@ -62,7 +62,7 @@ def test_scren_user_input_n(make_test_files, monkeypatch):
     os.chdir(d)
     assert str(Path.cwd()) == str(d)
 
-    args = ["scren.py"]
+    args = []
     scren.main(args)
 
     #  Should not move (rename) files when user input is 'n'.
@@ -79,7 +79,7 @@ def test_scren_user_input_y(make_test_files, monkeypatch):
     os.chdir(d)
     assert str(Path.cwd()) == str(d)
 
-    args = ["scren.py"]
+    args = []
     scren.main(args)
 
     # Should move (rename) files when user input is "y".
@@ -98,7 +98,7 @@ def test_scren_user_input_enter(make_test_files, monkeypatch):
     os.chdir(d)
     assert str(Path.cwd()) == str(d)
 
-    args = ["scren.py"]
+    args = []
     scren.main(args)
 
     # Should move (rename) files when user input default is "y".

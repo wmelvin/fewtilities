@@ -2,11 +2,10 @@
 
 import argparse
 import shutil
-import sys
 from datetime import datetime
 from pathlib import Path
 
-app_version = "2024.01.1"
+app_version = "2024.02.1"
 
 app_title = f"bymo.py (v{app_version})"
 
@@ -30,7 +29,7 @@ def get_user_input(prompt, choices, default=None):
     return answer
 
 
-def get_opts(argv):
+def get_opts(arglist=None):
     ap = argparse.ArgumentParser(
         description="Move files in the current directory (folder) to "
         "sub-directories named for the year and month the file was "
@@ -69,15 +68,15 @@ def get_opts(argv):
         help="Print the list of files that would be moved.",
     )
 
-    args = ap.parse_args(argv[1:])
+    args = ap.parse_args(arglist)
 
     return args.do_move, args.keep_spaces, args.filespecs, args.what_if
 
 
-def main(argv):  # noqa: PLR0912
+def main(arglist=None):  # noqa: PLR0912
     print(f"#  {app_title}")
 
-    do_move, keep_spaces, filespecs, what_if = get_opts(argv)
+    do_move, keep_spaces, filespecs, what_if = get_opts(arglist)
 
     p = Path.cwd()
 
@@ -151,4 +150,4 @@ def main(argv):  # noqa: PLR0912
 
 
 if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+    main()

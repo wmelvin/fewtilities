@@ -11,9 +11,9 @@ from typing import NamedTuple
 
 DEFAULT_FILENAME = "comment_links.html"
 
-app_version = "2024.01.1"
+app_version = "2024.02.1"
 
-app_title = f"comment_links.py (v.{app_version})"
+app_title = f"comment_links.py (v{app_version})"
 
 run_dt = datetime.now()
 
@@ -92,7 +92,7 @@ def html_tail():
     ).format(run_dt.strftime("%Y-%m-%d %H:%M"), app_title)
 
 
-def get_args(argv):
+def get_args(arglist=None):
     ap = argparse.ArgumentParser(
         description="Extract links from comments in a script. This tool only "
         "works with scripts, such as Python or PowerShell, that use the '#' "
@@ -135,11 +135,11 @@ def get_args(argv):
         "output file name. Optional.",
     )
 
-    return ap.parse_args(argv[1:])
+    return ap.parse_args(arglist)
 
 
-def get_opts(argv):
-    args = get_args(argv)
+def get_opts(arglist=None):
+    args = get_args(arglist)
 
     source_files = []
     for fn in args.source_files:
@@ -221,10 +221,10 @@ def get_comment_links(source_file: Path) -> str:
     return result
 
 
-def main(argv):
+def main(arglist=None):
     print(f"\n{app_title}\n")
 
-    opts = get_opts(argv)
+    opts = get_opts(arglist)
 
     body = ""
     for source_file in opts.source_files:
@@ -242,4 +242,4 @@ def main(argv):
 
 
 if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+    main()

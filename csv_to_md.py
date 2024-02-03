@@ -13,7 +13,7 @@ from typing import NamedTuple
 
 app_name = Path(__file__).name
 
-app_version = "2024.01.1"
+app_version = "2024.02.1"
 
 app_title = f"{app_name} (v{app_version})"
 
@@ -27,7 +27,7 @@ class AppOptions(NamedTuple):
     do_source: bool
 
 
-def get_opts(argv) -> AppOptions:
+def get_opts(arglist=None) -> AppOptions:
     ap = argparse.ArgumentParser(
         description="Read a CSV file and write a Markdown table."
     )
@@ -71,7 +71,7 @@ def get_opts(argv) -> AppOptions:
         help="Allow an existing output file to be overwritten.",
     )
 
-    args = ap.parse_args(argv[1:])
+    args = ap.parse_args(arglist)
 
     csv_path = Path(args.csv_file)
     if not csv_path.exists():
@@ -170,13 +170,13 @@ def csv_to_md(  # noqa: PLR0912
     return 0
 
 
-def main(argv):
+def main(arglist=None):
     print(f"\n{app_title}\n")
-    opts = get_opts(argv)
+    opts = get_opts(arglist)
     return csv_to_md(
         str(opts.csv_path), str(opts.out_path), opts.do_info, opts.do_source
     )
 
 
 if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+    main()
