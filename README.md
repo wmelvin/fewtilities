@@ -23,7 +23,7 @@ This is a repository for some command-line tools that do not need a whole projec
 Moves files in the current directory into sub-directories named for the year and month (as *YYYY_MM*) of each file's last modified time.
 
 ```
-usage: bymo.py [-h] [-m] [-k] [--what-if] [filespecs ...]
+usage: bymo.py [-h] [-m] [-k] [--by-year] [--what-if] [filespecs ...]
 
 Move files in the current directory (folder) to sub-directories named for the
 year and month the file was last modified.
@@ -38,6 +38,9 @@ options:
                      but not executed.
   -k, --keep-spaces  Keep spaces in destination file names. By default, spaces
                      are replaced with underscores.
+  --by-year          Move files to sub-directories named for only the year the
+                     file was last modified (instead of year and month which
+                     is the default action).
   --what-if          Print the list of files that would be moved.
 ```
 

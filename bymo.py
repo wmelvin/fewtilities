@@ -5,7 +5,7 @@ import shutil
 from datetime import datetime
 from pathlib import Path
 
-app_version = "2024.02.1"
+app_version = "2024.07.1"
 
 app_title = f"bymo.py (v{app_version})"
 
@@ -62,6 +62,14 @@ def get_opts(arglist=None):
     )
 
     ap.add_argument(
+        "--by-year",
+        dest="by_year",
+        action="store_true",
+        help="Move files to sub-directories named for only the year the file was "
+        "last modified (instead of year and month which is the default action)."
+    )
+
+    ap.add_argument(
         "--what-if",
         dest="what_if",
         action="store_true",
@@ -70,13 +78,13 @@ def get_opts(arglist=None):
 
     args = ap.parse_args(arglist)
 
-    return args.do_move, args.keep_spaces, args.filespecs, args.what_if
+    return args.do_move, args.keep_spaces, args.filespecs, args.by_year, args.what_if
 
 
 def main(arglist=None):  # noqa: PLR0912
     print(f"#  {app_title}")
 
-    do_move, keep_spaces, filespecs, what_if = get_opts(arglist)
+    do_move, keep_spaces, filespecs, by_year, what_if = get_opts(arglist)
 
     p = Path.cwd()
 
@@ -90,8 +98,10 @@ def main(arglist=None):  # noqa: PLR0912
     dirs = []
     moves = []
 
+    fmt = "%Y" if by_year else "%Y_%m"
+
     for f in files:
-        dst_dir = datetime.fromtimestamp(f.stat().st_mtime).strftime("%Y_%m")
+        dst_dir = datetime.fromtimestamp(f.stat().st_mtime).strftime(fmt)
 
         if dst_dir not in dirs:
             dirs.append(dst_dir)

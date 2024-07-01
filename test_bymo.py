@@ -32,7 +32,7 @@ def tmp_dir_with_test_files(tmp_path: Path) -> tuple[Path, list[Path]]:
 
 
 def mo_dir(file_path: Path):
-    """Returns the directory name for the month of the given file's mtime."""
+    """Returns the directory name for the year and month of the given file's mtime."""
     return datetime.fromtimestamp(file_path.stat().st_mtime).strftime("%Y_%m")
 
 
@@ -190,3 +190,29 @@ def test_takes_multiple_file_specs(tmp_dir_with_test_files):
     assert (d / "2022_02").exists()
 
     assert all(f.exists() for f in targets if f.suffix in ["*.opt", ".txt"])
+
+
+def yr_dir(file_path: Path):
+    """Returns the directory name for the year of the given file's mtime."""
+    return datetime.fromtimestamp(file_path.stat().st_mtime).strftime("%Y")
+
+
+def test_by_year_option(tmp_dir_with_test_files):
+    d, files = tmp_dir_with_test_files
+    targets = [Path(d / yr_dir(f) / f.name) for f in files]
+
+    os.chdir(d)
+    assert str(Path.cwd()) == str(d)
+
+    args = ["--move-now", "--by-year"]
+    bymo.main(args)
+
+    # Files were moved from original directory.
+    assert all(not f.exists() for f in files)
+
+    # Year directories were created.
+    assert (d / "2021").exists()
+    assert (d / "2022").exists()
+
+    # All files were moved to the year directories.
+    assert all(f.exists() for f in targets)
