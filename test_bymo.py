@@ -1,11 +1,17 @@
+from __future__ import annotations
+
 import os
 from datetime import datetime, timedelta
 from pathlib import Path
 
+import pytest
+
 import bymo
 
 
-def make_test_file(dir_path: Path, file_name: str, time_stamp: datetime.timestamp):
+def make_test_file(
+    dir_path: Path, file_name: str, time_stamp: datetime.timestamp
+) -> Path:
     f = dir_path / file_name
     f.write_text(f.name)
     assert f.exists()
@@ -13,19 +19,16 @@ def make_test_file(dir_path: Path, file_name: str, time_stamp: datetime.timestam
     assert f.stat().st_mtime == time_stamp
     return f
 
-
-def make_test_files(dir_path: Path, base_dt: datetime):
-    t1 = base_dt
-    f1 = make_test_file(dir_path, "file-1.txt", t1.timestamp())
-
-    t2 = base_dt - timedelta(days=30)
-    f2 = make_test_file(dir_path, "file-2.ini", t2.timestamp())
-    f3 = make_test_file(dir_path, "file-3.opt", t2.timestamp())
-
-    t4 = base_dt - timedelta(days=60)
-    f4 = make_test_file(dir_path, "file-4.txt", t4.timestamp())
-
-    return [f1, f2, f3, f4]
+@pytest.fixture()
+def tmp_dir_with_test_files(tmp_path: Path) -> tuple[Path, list[Path]]:
+    base_dt = datetime.fromisoformat("2022-02-14")
+    d = tmp_path / "files"
+    d.mkdir()
+    f1 = make_test_file(d, "file-1.txt", base_dt.timestamp())
+    f2 = make_test_file(d, "file-2.ini", (base_dt - timedelta(days=30)).timestamp())
+    f3 = make_test_file(d, "file-3.opt", (base_dt - timedelta(days=30)).timestamp())
+    f4 = make_test_file(d, "file-4.txt", (base_dt - timedelta(days=60)).timestamp())
+    return d, [f1, f2, f3, f4]
 
 
 def mo_dir(file_path: Path):
@@ -33,12 +36,9 @@ def mo_dir(file_path: Path):
     return datetime.fromtimestamp(file_path.stat().st_mtime).strftime("%Y_%m")
 
 
-def test_no_move_w_arg_whatif(tmp_path: Path):
-    d = tmp_path / "files"
+def test_no_move_w_arg_whatif(tmp_dir_with_test_files):
+    d, files = tmp_dir_with_test_files
     print(f"tmp_path: {d}")
-    d.mkdir()
-    test_dt = datetime.fromisoformat("2022-02-14")
-    files = make_test_files(d, test_dt)
     targets = [Path(d / mo_dir(f) / f.name) for f in files]
 
     os.chdir(d)
@@ -53,17 +53,14 @@ def test_no_move_w_arg_whatif(tmp_path: Path):
     assert all(not f.exists() for f in targets)
 
 
-def test_no_move_wo_arg_m(tmp_path: Path, monkeypatch):
+def test_no_move_wo_arg_m(tmp_dir_with_test_files, monkeypatch):
     def fake_input_n(prompt):
         return "n"
 
     monkeypatch.setattr(bymo, "get_input_lower", fake_input_n)
 
-    d = tmp_path / "files"
+    d, files = tmp_dir_with_test_files
     print(f"tmp_path: {d}")
-    d.mkdir()
-    test_dt = datetime.fromisoformat("2022-02-14")
-    files = make_test_files(d, test_dt)
     targets = [Path(d / mo_dir(f) / f.name) for f in files]
 
     os.chdir(d)
@@ -77,17 +74,14 @@ def test_no_move_wo_arg_m(tmp_path: Path, monkeypatch):
     assert all(not f.exists() for f in targets)
 
 
-def test_no_move_specified_files_wo_arg_m(tmp_path: Path, monkeypatch):
+def test_no_move_specified_files_wo_arg_m(tmp_dir_with_test_files, monkeypatch):
     def fake_input_n(prompt):
         return "n"
 
     monkeypatch.setattr(bymo, "get_input_lower", fake_input_n)
 
-    d = tmp_path / "files"
+    d, files = tmp_dir_with_test_files
     print(f"tmp_path: {d}")
-    d.mkdir()
-    test_dt = datetime.fromisoformat("2022-02-14")
-    files = make_test_files(d, test_dt)
     targets = [Path(d / mo_dir(f) / f.name) for f in files]
 
     os.chdir(d)
@@ -101,17 +95,14 @@ def test_no_move_specified_files_wo_arg_m(tmp_path: Path, monkeypatch):
     assert all(not f.exists() for f in targets)
 
 
-def test_move_all_files_w_only_arg_m(tmp_path: Path, monkeypatch):
+def test_move_all_files_w_only_arg_m(tmp_dir_with_test_files, monkeypatch):
     def fake_input_n(prompt):
         assert 0, "This should not be called."
         return "n"
 
     monkeypatch.setattr(bymo, "get_input_lower", fake_input_n)
 
-    d = tmp_path / "files"
-    d.mkdir()
-    test_dt = datetime.fromisoformat("2022-02-14")
-    files = make_test_files(d, test_dt)
+    d, files = tmp_dir_with_test_files
     targets = [Path(d / mo_dir(f) / f.name) for f in files]
 
     os.chdir(d)
@@ -130,12 +121,9 @@ def test_move_all_files_w_only_arg_m(tmp_path: Path, monkeypatch):
     assert all(f.exists() for f in targets)
 
 
-def test_move_only_specified_files_w_arg_m(tmp_path: Path):
-    d = tmp_path / "files"
+def test_move_only_specified_files_w_arg_m(tmp_dir_with_test_files):
+    d, files = tmp_dir_with_test_files
     print(f"tmp_path: {d}")
-    d.mkdir()
-    test_dt = datetime.fromisoformat("2022-02-14")
-    files = make_test_files(d, test_dt)
     targets = [Path(d / mo_dir(f) / f.name) for f in files]
 
     os.chdir(d)
@@ -155,17 +143,14 @@ def test_move_only_specified_files_w_arg_m(tmp_path: Path):
     assert all(f.exists() for f in targets if f.suffix == ".txt")
 
 
-def test_move_only_specified_files_w_input_y(tmp_path: Path, monkeypatch):
+def test_move_only_specified_files_w_input_y(tmp_dir_with_test_files, monkeypatch):
     def fake_input_y(prompt):
         return "y"
 
     monkeypatch.setattr(bymo, "get_input_lower", fake_input_y)
 
-    d = tmp_path / "files"
+    d, files = tmp_dir_with_test_files
     print(f"tmp_path: {d}")
-    d.mkdir()
-    test_dt = datetime.fromisoformat("2022-02-14")
-    files = make_test_files(d, test_dt)
     targets = [Path(d / mo_dir(f) / f.name) for f in files]
 
     os.chdir(d)
@@ -185,12 +170,9 @@ def test_move_only_specified_files_w_input_y(tmp_path: Path, monkeypatch):
     assert all(f.exists() for f in targets if f.suffix == ".txt")
 
 
-def test_takes_multiple_file_specs(tmp_path: Path):
-    d = tmp_path / "files"
+def test_takes_multiple_file_specs(tmp_dir_with_test_files):
+    d, files = tmp_dir_with_test_files
     print(f"tmp_path: {d}")
-    d.mkdir()
-    test_dt = datetime.fromisoformat("2022-02-14")
-    files = make_test_files(d, test_dt)
     targets = [Path(d / mo_dir(f) / f.name) for f in files]
 
     os.chdir(d)
