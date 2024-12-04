@@ -13,7 +13,7 @@ from typing import NamedTuple
 
 app_name = Path(__file__).name
 
-app_version = "2024.02.1"
+app_version = "2024.12.1"
 
 app_title = f"{app_name} (v{app_version})"
 
@@ -147,8 +147,8 @@ def csv_to_md(  # noqa: PLR0912
         for i in range(len(flds)):
             if len(flds) != len(row):
                 sys.stderr.write(
-                    f"\nNumber of columns in row {row_num} does not match the"
-                    "number of heading titles. Make sure there are no"
+                    f"\nNumber of columns in row {row_num} does not match the "
+                    "number of heading titles. Make sure there are no "
                     "duplicate or missing column titles.\n"
                 )
                 sys.exit(1)
