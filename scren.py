@@ -1,13 +1,32 @@
 #!/usr/bin/env python3
 
+from __future__ import annotations
+
 import argparse
 import re
 import shutil
 from pathlib import Path
 
-app_version = "2024.02.1"
+app_version = "2024.02.2"
 
 app_title = f"scren.py (v{app_version})"
+
+#  Example pattern_1 file names:
+#    "Screenshot_from_2022-02-03_17-31-04.png"
+#    "Screenshot from 2022-02-24 14-20-29.png"
+#    "Screenshot_from_2022-02-22_07-59-01-crop.jpg"
+#    "Screenshot at 2022-02-12 09-10-04.png"
+
+pattern_1 = re.compile(
+    r"Screenshot.*"
+    r"(\d{4})-(\d{2})-(\d{2})."
+    r"(\d{2})-(\d{2})-(\d{2}).*([.]png|[.]jpg)"
+)
+
+#  Example pattern_2 file names:
+#    "Screenshot_20220301_070842.png"
+
+pattern_2 = re.compile(r"Screenshot.*(\d{8}).(\d{6}).*([.]png|[.]jpg)")
 
 
 def get_input_lower(prompt):
@@ -59,6 +78,13 @@ def get_opts(arglist=None):
     )
 
     ap.add_argument(
+        "--by-mo",
+        dest="by_mo",
+        action="store_true",
+        help="Move files to monthly sub-directories based on the year and month.",
+    )
+
+    ap.add_argument(
         "--what-if",
         dest="what_if",
         action="store_true",
@@ -67,68 +93,75 @@ def get_opts(arglist=None):
 
     args = ap.parse_args(arglist)
 
-    return args.do_move, args.search_dir, args.what_if
+    return args.do_move, args.search_dir, args.by_mo, args.what_if
 
 
-def main(arglist=None):  # noqa: PLR0912
-    print(f"#  {app_title}")
-
-    do_move, search_dir, what_if = get_opts(arglist)
-
-    p = Path.cwd() if search_dir is None else Path(search_dir).expanduser().resolve()
-
-    #  Example pattern_1 file names:
-    #  "Screenshot_from_2022-02-03_17-31-04.png"
-    #  "Screenshot from 2022-02-24 14-20-29.png"
-    #  "Screenshot_from_2022-02-22_07-59-01-crop.jpg"
-    #  "Screenshot at 2022-02-12 09-10-04.png"
-
-    pattern_1 = re.compile(
-        r"Screenshot.*"
-        r"(\d{4})-(\d{2})-(\d{2})."
-        r"(\d{2})-(\d{2})-(\d{2}).*([.]png|[.]jpg)"
-    )
-
-    #  Example pattern_2 file names:
-    #  "Screenshot_20220301_070842.png"
-
-    pattern_2 = re.compile(r"Screenshot.*(\d{8}).(\d{6}).*([.]png|[.]jpg)")
-
+def get_moves(search_path: Path, by_mo: bool) -> list[tuple[Path, Path]]:
     moves = []
-
-    for file_path in p.iterdir():
-        # print(f.name)
+    for file_path in search_path.iterdir():
         m1 = pattern_1.match(file_path.name)
         if m1 is None:
             m2 = pattern_2.match(file_path.name)
             if m2 is not None:
-                assert len(m2.groups()) == 3, "Unexpected match result."  # noqa: S101, PLR2004
-                new_name = "screen_{}_{}{}".format(m2[1], m2[2], m2[3])
-                new_path = file_path.parent / new_name
+                if len(m2.groups()) != 3:  # noqa: PLR2004
+                    print(f"Unexpected match result for {file_path.name}.")
+                    continue
+
+                ymd = m2[1]
+                hms = m2[2]
+                ext = m2[3]
+                new_name = f"screen_{ymd}_{hms}{ext}"
+                if by_mo:
+                    mo_dir = f"{ymd[:4]}_{ymd[4:6]}"
+                    new_path = file_path.parent / mo_dir
+                    new_path /= new_name
+                else:
+                    new_path = file_path.parent / new_name
                 moves.append((file_path, new_path))
 
         else:
-            # print(f"m1: len={len(m1.groups())} groups={m1.groups()}")
-            assert len(m1.groups()) == 7, "Unexpected match result."  # noqa: S101, PLR2004
-            new_name = "screen_{}{}{}_{}{}{}{}".format(
-                m1[1], m1[2], m1[3], m1[4], m1[5], m1[6], m1[7]
-            )
-            new_path = file_path.parent / new_name
+            if len(m1.groups()) != 7:  # noqa: PLR2004
+                print(f"Unexpected match result for {file_path.name}.")
+                continue
+
+            ymd = m1[1] + m1[2] + m1[3]
+            hms = m1[4] + m1[5] + m1[6]
+            ext = m1[7]
+            new_name = f"screen_{ymd}_{hms}{ext}"
+            if by_mo:
+                mo_dir = f"{ymd[:4]}_{ymd[4:6]}"
+                new_path = file_path.parent / mo_dir
+                new_path /= new_name
+            else:
+                new_path = file_path.parent / new_name
             moves.append((file_path, new_path))
+    return moves
+
+
+def main(arglist=None):
+    print(f"#  {app_title}")
+
+    do_move, search_dir, by_mo, what_if = get_opts(arglist)
+
+    p = Path.cwd() if search_dir is None else Path(search_dir).expanduser().resolve()
+
+    moves = get_moves(p, by_mo)
 
     if what_if:
         print("\n#  Printing Unix 'mv' commands for '--what-if' output.\n")
 
-    for mv in moves:
+    for src, dst in moves:
         if what_if:
-            print(f'mv "{mv[0]}" "{mv[1]}"')
+            print(f'mv "{src}" "{dst}"')
             continue
 
-        print(f'Move "{mv[0]}"')
-        print(f'  to "{mv[1]}"')
+        print(f'Move "{src}"')
+        print(f'  to "{dst}"')
 
         if do_move:
-            shutil.move(mv[0], mv[1])
+            if by_mo and not dst.parent.exists():
+                dst.parent.mkdir()
+            shutil.move(src, dst)
             print("(moved)")
         else:
             ans = get_user_input(
@@ -142,7 +175,9 @@ def main(arglist=None):  # noqa: PLR0912
                 continue
 
             if ans in ("y", "a"):
-                shutil.move(mv[0], mv[1])
+                if by_mo and not dst.parent.exists():
+                    dst.parent.mkdir()
+                shutil.move(src, dst)
                 print("(Moved)")
 
             if ans == "a":

@@ -156,7 +156,7 @@ The initial purpose of this script is to calculate options for the date to use w
 Renames screenshot files in the current directory to a shorter file name.
 
 ```
-usage: scren.py [-h] [-s SEARCH_DIR] [-m] [--what-if]
+usage: scren.py [-h] [-s SEARCH_DIR] [-m] [--by-mo] [--what-if]
 
 Rename screenshot files. Finds files matching patterns for screenshot file
 names and moves (renames) them. By default the current directory is searched
@@ -173,6 +173,8 @@ options:
                         recursive (sub-directories are not searched).
   -m, --move-now        Move the files now instead of prompting whether to
                         move each file.
+  --by-mo               Move files to monthly sub-directories based on the
+                        year and month.
   --what-if             Print the list of files that would be moved.
 ```
 
