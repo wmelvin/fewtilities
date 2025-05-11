@@ -3,6 +3,7 @@ private/
 notes-private.txt
 
 # Python.
+.venv/
 venv/
 __pycache__/
 
