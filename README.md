@@ -10,12 +10,16 @@ This is a repository for some command-line tools that do not need a whole projec
 
 [copydif.py](#copydifpy) - Copy files that differ from a source directory to a target directory (one-way sync).
 
-[csv\_to\_md.py](#csv_to_mdpy) - Read a CSV file and write the data as a Markdown table.
-
 [from\_today.py](#from_todaypy) - Print a set of future dates, *n* days from today.
 
 [scren.py](#screnpy) - Rename captured screenshot files to a more compact name.
 
+---
+
+Removed from this collection:
+
+[csv_to_md.py.](https://github.com/wmelvin/csv-to-md) is now a separate project.
+    
 ---
 
 ### bymo.py
@@ -110,36 +114,6 @@ options:
   --log-file LOG_FILE  Name of the log file to create (or append, if exists).
                        By default, there is no log file.
 ```
-
----
-
-### csv_to_md.py
-
-Reads a CSV file and writes the data as a Markdown table.
-
-```
-usage: csv_to_md.py [-h] [--no-info] [--no-source] [-n MD_FILE] [--force]
-                    csv_file
-
-Read a CSV file and write a Markdown table.
-
-positional arguments:
-  csv_file              Path to CSV file.
-
-options:
-  -h, --help            show this help message and exit
-  --no-info             Do not include the 'Created by...' information header.
-  --no-source           Do not include the 'Source:...' header.
-  -n MD_FILE, --name MD_FILE
-                        Name of the output file to create. Optional. By
-                        default the output file is named using the name of the
-                        input (CSV) file with a date_time tag and a '.md'
-                        suffix. An existing file with the same name will not
-                        be overwritten unless the --force option is used.
-  --force               Allow an existing output file to be overwritten.
-```
-
-This requires that the CSV file is formatted as a table, with a single heading row, with unique column titles, followed by data rows.
 
 ---
 

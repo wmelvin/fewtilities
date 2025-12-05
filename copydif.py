@@ -9,7 +9,7 @@ import time
 from datetime import datetime
 from pathlib import Path
 
-app_version = "2024.02.1"
+app_version = "2025.12.1"
 
 app_title = f"copydif.py (v{app_version})"
 
@@ -61,9 +61,7 @@ def same_time_and_size(file1: Path, file2: Path):
     if info1.st_size != info2.st_size:
         return False
 
-    if file_time_str(info1.st_mtime) != file_time_str(info2.st_mtime):
-        return False
-    return True
+    return file_time_str(info1.st_mtime) == file_time_str(info2.st_mtime)
 
 
 def copy_differing_files(source_spec, target_dir):

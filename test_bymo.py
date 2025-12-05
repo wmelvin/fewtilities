@@ -19,6 +19,7 @@ def make_test_file(
     assert f.stat().st_mtime == time_stamp
     return f
 
+
 @pytest.fixture()
 def tmp_dir_with_test_files(tmp_path: Path) -> tuple[Path, list[Path]]:
     base_dt = datetime.fromisoformat("2022-02-14")

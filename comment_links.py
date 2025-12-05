@@ -11,7 +11,7 @@ from typing import NamedTuple
 
 DEFAULT_FILENAME = "comment_links.html"
 
-app_version = "2024.02.1"
+app_version = "2025.12.1"
 
 app_title = f"comment_links.py (v{app_version})"
 
@@ -233,7 +233,7 @@ def main(arglist=None):
     print(f"Writing '{opts.out_file}'")
 
     with opts.out_file.open("w") as html:
-        html.write(f'{html_head("comment_links")}\n')
+        html.write(f"{html_head('comment_links')}\n")
         html.write(body)
         html.write(f"{html_tail()}\n")
 

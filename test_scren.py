@@ -10,8 +10,7 @@ import scren
 
 @pytest.fixture()
 def make_test_files(tmp_path: Path):
-    """ Create test files for scren.py.
-    """
+    """Create test files for scren.py."""
     dir_path = tmp_path / "Pictures"
     dir_path.mkdir()
 

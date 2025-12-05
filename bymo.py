@@ -5,7 +5,7 @@ import shutil
 from datetime import datetime
 from pathlib import Path
 
-app_version = "2024.07.1"
+app_version = "2025.12.1"
 
 app_title = f"bymo.py (v{app_version})"
 
@@ -66,7 +66,7 @@ def get_opts(arglist=None):
         dest="by_year",
         action="store_true",
         help="Move files to sub-directories named for only the year the file was "
-        "last modified (instead of year and month which is the default action)."
+        "last modified (instead of year and month which is the default action).",
     )
 
     ap.add_argument(
