@@ -6,11 +6,11 @@ notes-private.txt
 .venv/
 venv/
 __pycache__/
+.pytest_cache/
+.ruff_cache/
 
 # Tools config.
-.idea/
 .vscode/
 
 # App-specific.
-_0_bak/
-wipbak-list.txt
+output/

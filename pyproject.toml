@@ -2,11 +2,12 @@
 name = "fewtilities"
 
 #  This is the version of the collection. Each utility has its own version.
-version = "2025.05.1"
+#  Using calver (YYYY.0M.MICRO).
+version = "2025.12.1"
 
 description = 'A few utilities'
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 license = {file = "LICENSE"}
 
 [dependency-groups]
